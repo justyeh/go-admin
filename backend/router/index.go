@@ -11,13 +11,24 @@ import (
 //InitRouter  初始化路由
 func InitRouter() *gin.Engine {
 	router := gin.New()
+
+	middleware.InitMiddleware(router)
+
 	router.GET("/", home)
 
 	wiki := router.Group("/wiki")
-	wiki.GET("/", service.GetWikiList)
+	{
+		wiki.GET("/", service.GetWikiList)
+	}
+
+	auth := router.Group("/auth")
+	{
+		auth.GET("/login", service.UserLogin)
+		auth.GET("/logout", service.UserLogout)
+		auth.GET("/captcha", service.GenerateCaptcha)
+	}
 
 	router.NoRoute(notFound)
-	middleware.InitMiddleware(router)
 
 	router.Run(":1234")
 	return router
