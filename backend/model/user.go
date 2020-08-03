@@ -47,8 +47,8 @@ func (u LoginUser) Get() (LoginUser, error) {
 	return data, nil
 }
 
-func (u *User) Create() {
-
+func (u *User) Create() (string, error) {
+	return "", nil
 }
 
 func (u *User) Update() {
