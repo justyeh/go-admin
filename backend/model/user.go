@@ -23,7 +23,7 @@ func (u User) TableName() string {
 
 func (u User) List() ([]User, error) {
 	list := []User{}
-	if err := global.DB.Find(&list).Error; err != nil {
+	if err := global.MYSQL.Find(&list).Error; err != nil {
 		return list, err
 	}
 	return list, nil
@@ -31,7 +31,7 @@ func (u User) List() ([]User, error) {
 
 func (u User) Page(page *tools.Pagination) ([]User, error) {
 	list := []User{}
-	err := global.DB.Find(&list).Error
+	err := global.MYSQL.Find(&list).Error
 	if err != nil {
 		return list, err
 	}
@@ -40,7 +40,7 @@ func (u User) Page(page *tools.Pagination) ([]User, error) {
 
 func (u LoginUser) Get() (LoginUser, error) {
 	var data LoginUser
-	err := global.DB.Find(&data).Error
+	err := global.MYSQL.Find(&data).Error
 	if err != nil {
 		return data, err
 	}
@@ -56,7 +56,7 @@ func (u *User) Update() {
 }
 
 func (u *User) Delete() {
-	// global.DB.Where("id = ?", u.ID).Delete(User{})
+	// global.MYSQL.Where("id = ?", u.ID).Delete(User{})
 }
 
 func (u *User) IsExist() bool {

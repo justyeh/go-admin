@@ -22,6 +22,6 @@ func InitMysql() {
 	db.DB().SetMaxIdleConns(mysql.MaxIdleConns)
 	db.DB().SetMaxOpenConns(mysql.MaxOpenConns)
 
-	global.DB = db
+	global.MYSQL = db
 	fmt.Println("数据库已经连接")
 }

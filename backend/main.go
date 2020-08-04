@@ -13,7 +13,7 @@ func main() {
 	initialize.InitRouter()
 
 	// 程序结束前关闭数据库链接
-	defer global.DB.Close()
+	defer global.MYSQL.Close()
 
 	fmt.Println("程序启动成功，服务运行与http://127.0.0.1:1234")
 }
