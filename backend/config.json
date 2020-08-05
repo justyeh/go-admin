@@ -1,0 +1,15 @@
+{
+  "mysql": {
+    "Username": "root",
+    "Password": "root",
+    "Path": "127.0.0.1:3306",
+    "Dbname": "test",
+    "MaxIdleConns": 200,
+    "MaxOpenConns": 100
+  },
+  "redis": {},
+  "gin": {
+    "mode": "release",
+    "port": "1234"
+  }
+}

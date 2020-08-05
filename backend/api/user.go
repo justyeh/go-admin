@@ -23,7 +23,7 @@ func UserList(c *gin.Context) {
 }
 
 func AddUser(c *gin.Context) {
-	user := model.User{}
+	/* user := model.User{}
 	user.Name = c.Param("name")
 
 	insertId, err := user.Create()
@@ -34,7 +34,7 @@ func AddUser(c *gin.Context) {
 	}
 	user.ID = insertId
 
-	return tools.ResponseSuccess(c, gin.H{"user": user})
+	return tools.ResponseSuccess(c, gin.H{"user": user}) */
 
 }
 

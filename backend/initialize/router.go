@@ -3,12 +3,15 @@ package initialize
 import (
 	"backend/middleware"
 	"backend/router"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-func InitRouter() *gin.Engine {
+func InitRouter() {
+
+	gin.SetMode(CONFIG.Gin.Mode)
 	r := gin.New()
 
 	// 全局中间件
@@ -39,6 +42,6 @@ func InitRouter() *gin.Engine {
 	router.RegisterMenuRouter(ApiGroup)       // 菜单
 	router.RegisterDictionaryRouter(ApiGroup) // 字典
 
-	r.Run(":1234")
-	return r
+	fmt.Println("程序启动成功，服务运行与http://127.0.0.1:" + CONFIG.Gin.Port)
+	r.Run(":" + CONFIG.Gin.Port)
 }
