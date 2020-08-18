@@ -25,17 +25,17 @@ service.interceptors.response.use(
     if (status === 200) {
       return response.data
     } else {
-      notification.error({ message: '请求错误', description: message })
+      notification.error({ message: '请求失败', description: message })
       return Promise.reject(new Error(message))
     }
   },
   (error) => {
     if (error.toString().indexOf('Error: timeout') !== -1) {
-      notification.error({ message: 'Error', description: '网络请求超时' })
+      notification.error({ message: 'ERROR', description: '网络请求超时' })
       return Promise.reject(error)
     }
 
-    notification.error({ message: 'Error', description: '网络请求错误' })
+    notification.error({ message: 'ERROR', description: '网络请求错误' })
     return Promise.reject(error)
   }
 )

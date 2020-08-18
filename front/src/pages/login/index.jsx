@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import { Button, Input, Form } from 'antd'
+import React, { useState, useCallback } from 'react'
+import { useEffectOnce } from 'react-use'
+import { Button, Input, Form, Tooltip } from 'antd'
 import { UserOutlined, LockOutlined } from '@ant-design/icons'
 import './style.scss'
 
@@ -16,7 +17,7 @@ export default () => {
     })
   }, [])
 
-  useEffect(() => {
+  useEffectOnce(() => {
     refreshCaptcha()
   }, [])
 
@@ -28,6 +29,7 @@ export default () => {
     <div className="login-page">
       <Form size="large" name="login" onFinish={onFinish}>
         <h1>G-CMS</h1>
+
         <Form.Item name="username" rules={[{ required: true, message: '请输入账号!' }]}>
           <Input placeholder="登录账户" prefix={<UserOutlined />} />
         </Form.Item>
@@ -36,10 +38,14 @@ export default () => {
           <Input.Password placeholder="登录密码" prefix={<LockOutlined />} />
         </Form.Item>
 
-        <Form.Item name="captcha" className="captcha-item" rules={[{ required: true, message: '请输入验证码!' }]}>
-          <Input placeholder="验证码" />
-          <img src={form.captcha} alt="captcha" onClick={refreshCaptcha} />
-        </Form.Item>
+        <div className="captcha-item">
+          <Form.Item name="captcha" rules={[{ required: true, message: '请输入验证码!' }]}>
+            <Input placeholder="验证码" />
+          </Form.Item>
+          <Tooltip placement="top" title="刷新验证码">
+            <img src={form.captcha} alt="captcha" onClick={refreshCaptcha} />
+          </Tooltip>
+        </div>
 
         <Form.Item>
           <Button block type="primary" htmlType="submit">

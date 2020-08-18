@@ -11,12 +11,14 @@
   h1 {
     text-align: center;
   }
-  .captcha-item .ant-form-item-control-input-content {
+  .captcha-item {
     display: flex;
-    align-items: center;
-    justify-content: space-around;
+    justify-content: space-between;
+    .ant-form-item {
+      flex: 1;
+    }
     img {
-      width: 200px;
+      width: 160px;
       height: 40px;
       margin-left: 20px;
       background: #eee;
