@@ -1,0 +1,26 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e8e8e8 url(../../assets/image/login-bg.png) no-repeat center / cover;
+  form {
+    width: 400px;
+    padding-bottom: 100px;
+  }
+  h1 {
+    text-align: center;
+  }
+  .captcha-item .ant-form-item-control-input-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    img {
+      width: 200px;
+      height: 40px;
+      margin-left: 20px;
+      background: #eee;
+      cursor: pointer;
+    }
+  }
+}
