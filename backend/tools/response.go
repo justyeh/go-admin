@@ -6,16 +6,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func ResponseSuccess(c *gin.Context, data map[string]interface{}) {
-	c.JSON(http.StatusOK, gin.H{
-		"status": http.StatusOK,
-		"data":   data,
-	})
+func ResponseSuccess(c *gin.Context, data gin.H) {
+	data["status"] = http.StatusOK
+	c.JSON(http.StatusOK, data)
 }
 
-func ResponseError(c *gin.Context, status int, message string) {
+func ResponseError(c *gin.Context, message string) {
 	c.JSON(http.StatusOK, gin.H{
-		"status":  status,
+		"status":  http.StatusBadRequest,
 		"message": message,
 	})
 }

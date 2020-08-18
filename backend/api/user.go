@@ -1,17 +1,16 @@
 package api
 
 import (
-	"backend/model"
+	"backend/models"
 	"backend/tools"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 func UserList(c *gin.Context) {
-	list, err := model.User{}.List()
+	list, err := models.User{}.List()
 	if err != nil {
-		tools.ResponseError(c, http.StatusInternalServerError, "获取用户列表失败："+err.Error())
+		tools.ResponseError(c, "获取用户列表失败："+err.Error())
 		return
 	}
 
@@ -23,13 +22,13 @@ func UserList(c *gin.Context) {
 }
 
 func AddUser(c *gin.Context) {
-	/* user := model.User{}
+	/* user := models.User{}
 	user.Name = c.Param("name")
 
 	insertId, err := user.Create()
 
 	if err != nil {
-		tools.ResponseError(c, http.StatusInternalServerError, "添加用户失败："+err.Error())
+		tools.ResponseError(c, "添加用户失败："+err.Error())
 		return
 	}
 	user.ID = insertId

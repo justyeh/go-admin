@@ -21,15 +21,15 @@ func InitRouter() {
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"status":  http.StatusOK,
-			"message": "欢迎访问中锐滨湖尚城wiki",
+			"message": "欢迎访问G-CMS API",
 		})
 	})
 
 	// 404处理
 	r.NoRoute(func(c *gin.Context) {
-		c.JSON(http.StatusNotFound, gin.H{
+		c.JSON(http.StatusOK, gin.H{
 			"status":  http.StatusNotFound,
-			"message": "无效的url链接",
+			"message": "无效的接口地址",
 		})
 	})
 

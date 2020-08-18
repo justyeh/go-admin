@@ -22,6 +22,7 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   (response) => {
     const { status, message } = response.data
+
     if (status === 200) {
       return response.data
     } else {

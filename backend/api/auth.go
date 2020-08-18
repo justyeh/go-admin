@@ -1,8 +1,9 @@
 package api
 
 import (
+	"backend/models"
 	"backend/tools"
-	"net/http"
+	"strconv"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
@@ -10,7 +11,14 @@ import (
 )
 
 func Login(c *gin.Context) {
-	// loginUser := model.LoginUser
+	var login models.Login
+
+	if err := c.ShouldBind(&login); err != nil {
+		tools.ResponseError(c, err.Error())
+		return
+	}
+
+	tools.ResponseSuccess(c, gin.H{"message": "登录成功"})
 }
 
 func Logout(c *gin.Context) {
@@ -22,11 +30,20 @@ func UpdatePassword(c *gin.Context) {
 }
 
 func GenerateCaptcha(c *gin.Context) {
-	driver := base64Captcha.NewDriverDigit(80, 240, 5, 0.7, 80)
+	captchaWidth, err := strconv.Atoi(c.Query("w"))
+	if err != nil {
+		captchaWidth = 200
+	}
+	captchaHeight, err := strconv.Atoi(c.Query("h"))
+	if err != nil {
+		captchaHeight = 80
+	}
+
+	driver := base64Captcha.NewDriverDigit(captchaHeight, captchaWidth, 5, 0.7, 10)
 	_, content, _ := driver.GenerateIdQuestionAnswer()
 	item, err := driver.DrawCaptcha(content)
 	if err != nil {
-		tools.ResponseError(c, http.StatusInternalServerError, "生成验证码错误："+err.Error())
+		tools.ResponseError(c, "生成验证码错误："+err.Error())
 		return
 	}
 
@@ -35,12 +52,14 @@ func GenerateCaptcha(c *gin.Context) {
 	})
 	uuid, err := token.SignedString([]byte(content))
 	if err != nil {
-		tools.ResponseError(c, http.StatusInternalServerError, "生成验证码UUID错误："+err.Error())
+		tools.ResponseError(c, "生成验证码UUID错误："+err.Error())
 		return
 	}
 
 	tools.ResponseSuccess(c, gin.H{
-		"image": item.EncodeB64string(),
-		"uuid":  uuid,
+		"image":         item.EncodeB64string(),
+		"uuid":          uuid,
+		"captchaWidth":  captchaWidth,
+		"captchaHeight": captchaHeight,
 	})
 }

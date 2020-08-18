@@ -16,11 +16,12 @@
     justify-content: space-between;
     .ant-form-item {
       flex: 1;
+      margin-right: 20px;
     }
+    .ant-spin-nested-loading,
     img {
       width: 160px;
       height: 40px;
-      margin-left: 20px;
       background: #eee;
       cursor: pointer;
     }
