@@ -26,9 +26,9 @@ type UserPermission struct {
 	Code string `json:"code"`
 }
 
-type UserMenu struct{
-	ID         string           `json:"id"`
-	Url        string           `json:"url"`
+type UserMenu struct {
+	ID  string `json:"id"`
+	Url string `json:"url"`
 }
 
 type User struct {
@@ -41,7 +41,7 @@ type User struct {
 	Email      string           `json:"email"`
 	Dept       UserDept         `json:"dept"`
 	Job        UserJob          `json:"job"`
-	Menu       []UserMenu           `json:"menu"`
+	Menu       []UserMenu       `json:"menu"`
 	Permission []UserPermission `json:"permission" `
 	CreateAt   int              `json:"createAt"`
 	UpdateAt   int              `json:"updateAt"`
@@ -55,17 +55,15 @@ func (u User) TableName() string {
 	return "user"
 }
 
-
 func (u *LoginUser) Login() {
 	db := global.MYSQL.Where("account = ? and password = ?", u.Account, u.Password).First(&u)
 }
-
 
 func (u *User) UserInfo() {
 	db := global.MYSQL.Where("id = ?", u.ID).First(&u)
 	permissionList := []UserPermission{}
 	db.Related(&permissionList)
-	
+
 	menuList := []UserMenu{}
 	db.Related(&menuList)
 }

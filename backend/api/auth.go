@@ -11,27 +11,23 @@ import (
 )
 
 func Login(c *gin.Context) {
-	var user models.User
-	var login models.Login
-
-	if err := c.ShouldBind(&login); err != nil {
+	var loginUser models.loginUser
+	if err := c.ShouldBind(&loginUser); err != nil {
 		tools.ResponseBindError(c, err)
 		return
 	}
-
-	if err := c.ShouldBind(&user); err != nil {
-		tools.ResponseBindError(c, err)
-		return
-	}
-
-	user.Login()
-
-	if len(user.ID) == 0 {
+	if len(loginUser.ID) == 0 {
 		tools.ResponseError(c, "用户名或密码错误")
 		return
 	}
 
-	tools.ResponseSuccess(c, gin.H{"message": "登录成功", "token": user})
+	user := models.User{ID: loginUser.ID}
+	user.UserInfo()
+	tools.ResponseSuccess(c, gin.H{
+		"message":  "登录成功",
+		"token":    "",
+		"userInfo": user
+	})
 }
 
 func Logout(c *gin.Context) {
