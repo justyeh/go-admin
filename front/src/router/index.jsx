@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react'
-import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom'
+import { BrowserRouter, Switch, Route, Redirect, useLocation } from 'react-router-dom'
 import Loadable from 'react-loadable'
 
 import Fullpage from '@/layouts/Fullpage'
@@ -44,7 +44,8 @@ export default function Router() {
       if (hasToken) {
         return <LoadableComponent layout={layout} component={component} />
       } else {
-        return <Redirect to="/login" />
+        const { pathname, search } = window.location
+        return <Redirect to={`/login?redirect=${encodeURIComponent(pathname + search)}`} />
       }
     }
   }, [])

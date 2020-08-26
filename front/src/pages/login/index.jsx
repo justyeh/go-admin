@@ -2,11 +2,16 @@ import React, { useState, useCallback } from 'react'
 import { useEffectOnce } from 'react-use'
 import { Button, Input, Form, Tooltip, Spin } from 'antd'
 import { UserOutlined, LockOutlined } from '@ant-design/icons'
+import md5 from 'blueimp-md5'
+import { useHistory } from 'react-router-dom'
+import { getQueryParams } from '@/utils/index'
 import './style.scss'
 
 import { getCaptcha, login } from '@/apis/auth'
 
 export default () => {
+  const history = useHistory()
+
   const [form, setForm] = useState({ uuid: '', captchaImage: '' })
   const [captchaLoading, setCaptchaLoading] = useState(false)
   const refreshCaptcha = useCallback(async () => {
@@ -24,7 +29,10 @@ export default () => {
 
   const handleSubmit = async (values) => {
     try {
-      await login({ ...values, uuid: form.uuid })
+      values.password = md5(values.password)
+      const { token } = await login({ ...values, uuid: form.uuid })
+      // localStorage.setItem('token', token)
+      // history.replace(decodeURIComponent(getQueryParams('redirect') || '/'))
     } catch (error) {}
   }
 

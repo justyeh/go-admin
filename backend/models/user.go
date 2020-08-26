@@ -6,19 +6,50 @@ import (
 )
 
 type Login struct {
-	Account  string `json:"account"  binding:"required"`
+	Account  string `json:"account"  binding:"required,email"`
 	Password string `json:"password"  binding:"required"`
 	Captcha  string `json:"captcha"  binding:"required"`
 	Uuid     string `json:"uuid"  binding:"required"`
 }
 
+type UserDept struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+type UserJob struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+type UserPermission struct {
+	Code string `json:"code"`
+}
+
 type User struct {
-	ID   int64  `json:"id" gorm:"column:id"`
-	Name string `json:"name" gorm:"column:name"`
+	ID         string           `json:"id"`
+	Account    string           `json:"account"`
+	Password   string           `json:"password"`
+	Status     string           `json:"status"`
+	Nickname   string           `json:"nickname"`
+	Phone      string           `json:"phone"`
+	Email      string           `json:"email"`
+	Dept       UserDept         `json:"dept"`
+	Job        UserJob          `json:"job"`
+	Menu       string           `json:"menu"`
+	Permission []UserPermission `json:"permission" `
+	CreateAt   int              `json:"createAt"`
+	UpdateAt   int              `json:"updateAt"`
 }
 
 func (u User) TableName() string {
 	return "user"
+}
+
+func (u *User) Login() {
+	db := global.MYSQL.Where("account = ? and password = ?", u.Account, u.Password).First(&u)
+	permissionList := []UserPermission{}
+	db.Related(&permissionList)
 }
 
 func (u User) List() ([]User, error) {
@@ -36,15 +67,6 @@ func (u User) Page(page *tools.Pagination) ([]User, error) {
 		return list, err
 	}
 	return list, nil
-}
-
-func (u Login) Get() (Login, error) {
-	var data Login
-	err := global.MYSQL.Find(&data).Error
-	if err != nil {
-		return data, err
-	}
-	return data, nil
 }
 
 func (u *User) Create() (string, error) {

@@ -11,14 +11,27 @@ import (
 )
 
 func Login(c *gin.Context) {
+	var user models.User
 	var login models.Login
 
 	if err := c.ShouldBind(&login); err != nil {
-		tools.ResponseError(c, err.Error())
+		tools.ResponseBindError(c, err)
 		return
 	}
 
-	tools.ResponseSuccess(c, gin.H{"message": "登录成功"})
+	if err := c.ShouldBind(&user); err != nil {
+		tools.ResponseBindError(c, err)
+		return
+	}
+
+	user.Login()
+
+	if len(user.ID) == 0 {
+		tools.ResponseError(c, "用户名或密码错误")
+		return
+	}
+
+	tools.ResponseSuccess(c, gin.H{"message": "登录成功", "token": user})
 }
 
 func Logout(c *gin.Context) {
@@ -39,7 +52,11 @@ func GenerateCaptcha(c *gin.Context) {
 		captchaHeight = 80
 	}
 
-	driver := base64Captcha.NewDriverDigit(captchaHeight, captchaWidth, 5, 0.7, 10)
+	// captchaLength：验证码长度 captchaMaxSkew：图片倾斜程度 captchaDotCount：噪点数量，越低越清晰
+	captchaLength := 5
+	captchaMaxSkew := 0.3
+	captchaDotCount := 1
+	driver := base64Captcha.NewDriverDigit(captchaHeight, captchaWidth, captchaLength, captchaMaxSkew, captchaDotCount)
 	_, content, _ := driver.GenerateIdQuestionAnswer()
 	item, err := driver.DrawCaptcha(content)
 	if err != nil {
