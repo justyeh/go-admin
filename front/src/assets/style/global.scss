@@ -1,3 +1,5 @@
+@import './theme.scss';
+
 * {
   margin: 0;
   padding: 0;
@@ -11,4 +13,57 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #282c34;
+  min-width: 1200px;
+}
+
+$headerHeight: 50px;
+$siderWidth: 256px;
+.layout-management {
+  display: flex;
+  height: 100vh;
+  flex-direction: column;
+  .header {
+    height: $headerHeight;
+    flex-shrink: 0;
+    background-color: $c-main;
+  }
+  .container {
+    flex: 1;
+    display: flex;
+
+    .sider {
+      flex-shrink: 0;
+      width: $siderWidth;
+      overflow-x: hidden;
+      overflow-y: auto;
+      .ant-menu {
+        height: 100%;
+      }
+    }
+    .page {
+      padding: 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      .ant-breadcrumb{
+        flex-shrink: 0;
+      }
+      >div:not(.ant-breadcrumb){
+        flex: 1;
+      }
+    }
+  }
+}
+
+.page-filter-box {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 20px 0;
+  > * + * {
+    margin-left: 15px;
+  }
+  .ant-input-search {
+    flex-basis: 256px;
+    flex-shrink: 0;
+  }
 }

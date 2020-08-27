@@ -4,7 +4,7 @@ import { Button, Input, Form, Tooltip, Spin } from 'antd'
 import { UserOutlined, LockOutlined } from '@ant-design/icons'
 import md5 from 'blueimp-md5'
 import { useHistory } from 'react-router-dom'
-import { getQueryParams } from '@/utils/index'
+import { getQueryVariable } from '@/utils/index'
 import './style.scss'
 
 import { getCaptcha, login } from '@/apis/auth'
@@ -31,8 +31,8 @@ export default () => {
     try {
       values.password = md5(values.password)
       const { token } = await login({ ...values, uuid: form.uuid })
-      // localStorage.setItem('token', token)
-      // history.replace(decodeURIComponent(getQueryParams('redirect') || '/'))
+      localStorage.setItem('token', token)
+      history.replace(decodeURIComponent(getQueryVariable('redirect') || '/'))
     } catch (error) {}
   }
 

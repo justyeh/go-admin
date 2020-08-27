@@ -1,15 +1,13 @@
-export function getQueryParams(searchKey) {
+export function getQueryVariable(searchKey) {
   if (!searchKey) {
     return ''
   }
-
-  const queryArray = window.location.search.split('?')[1].split('&')
-  for (let i = 0; i < queryArray.length; i++) {
-    const [key, val] = queryArray[i].split('=')
+  const queryVars = window.location.search.substring(1).split('&')
+  for (let i = 0; i < queryVars.length; i++) {
+    const [key, val] = queryVars[i].split('=')
     if (searchKey === key) {
       return val
     }
   }
-  
   return ''
 }

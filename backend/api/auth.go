@@ -11,22 +11,32 @@ import (
 )
 
 func Login(c *gin.Context) {
-	var loginUser models.loginUser
+	var loginUser models.LoginUser
 	if err := c.ShouldBind(&loginUser); err != nil {
 		tools.ResponseBindError(c, err)
 		return
 	}
+
+	if err := loginUser.UserWithAccountAndPassword(); err != nil {
+		tools.ResponseError(c, err.Error())
+		return
+	}
+
 	if len(loginUser.ID) == 0 {
 		tools.ResponseError(c, "用户名或密码错误")
 		return
 	}
 
 	user := models.User{ID: loginUser.ID}
-	user.UserInfo()
+	if err := user.UserInfoWithID(); err != nil {
+		tools.ResponseError(c, err.Error())
+		return
+	}
+
 	tools.ResponseSuccess(c, gin.H{
 		"message":  "登录成功",
-		"token":    "",
-		"userInfo": user
+		"token":    "token",
+		"userInfo": user,
 	})
 }
 

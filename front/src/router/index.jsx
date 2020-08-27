@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react'
-import { BrowserRouter, Switch, Route, Redirect, useLocation } from 'react-router-dom'
+import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom'
 import Loadable from 'react-loadable'
 
 import Fullpage from '@/layouts/Fullpage'

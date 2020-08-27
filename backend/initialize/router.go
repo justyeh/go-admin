@@ -35,12 +35,8 @@ func InitRouter() {
 
 	// 业务路由
 	ApiGroup := r.Group("/api")
-	router.RegisterAuthRouter(ApiGroup)       // 登录、注册、验证码等认证相关
-	router.RegisterUserRouter(ApiGroup)       // 用户
-	router.RegisterRoleRouter(ApiGroup)       // 角色
-	router.RegisterPermissionRouter(ApiGroup) // 权限
-	router.RegisterMenuRouter(ApiGroup)       // 菜单
-	router.RegisterDictionaryRouter(ApiGroup) // 字典
+	router.RegisterAuthRouter(ApiGroup)   // 登录、注册、验证码等认证相关
+	router.RegisterSystemRouter(ApiGroup) // 系统管理相关
 
 	fmt.Println("程序启动成功，服务运行与http://127.0.0.1:" + CONFIG.Gin.Port)
 	r.Run(":" + CONFIG.Gin.Port)

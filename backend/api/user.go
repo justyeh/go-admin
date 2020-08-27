@@ -1,14 +1,11 @@
 package api
 
 import (
-	"backend/models"
-	"backend/tools"
-
 	"github.com/gin-gonic/gin"
 )
 
 func UserList(c *gin.Context) {
-	list, err := models.User{}.List()
+	/* list, err := models.User{}.List()
 	if err != nil {
 		tools.ResponseError(c, "获取用户列表失败："+err.Error())
 		return
@@ -18,7 +15,7 @@ func UserList(c *gin.Context) {
 	tools.ResponseSuccess(c, gin.H{
 		"list": list,
 		"page": p,
-	})
+	}) */
 }
 
 func AddUser(c *gin.Context) {
