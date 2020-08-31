@@ -41,7 +41,7 @@ export default () => {
       <Form size="large" name="login" onFinish={handleSubmit}>
         <h1>G-CMS</h1>
 
-        <Form.Item name="account">
+        <Form.Item name="account" rules={[{ required: true, message: '请输入账号!' }]}>
           <Input placeholder="登录账户" prefix={<UserOutlined />} />
         </Form.Item>
 
@@ -50,7 +50,7 @@ export default () => {
         </Form.Item>
 
         <div className="captcha-item">
-          <Form.Item name="captcha">
+          <Form.Item name="captcha" rules={[{ required: true, message: '请输入验证码!' }]}>
             <Input placeholder="验证码" />
           </Form.Item>
           <Tooltip placement="top" title="刷新验证码">

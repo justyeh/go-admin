@@ -9,5 +9,5 @@ require (
 	github.com/jinzhu/gorm v1.9.16
 	github.com/mojocn/base64Captcha v1.3.1
 	github.com/onsi/ginkgo v1.14.0 // indirect
-	github.com/satori/go.uuid v1.2.0 // indirect
+	github.com/satori/go.uuid v1.2.0
 )

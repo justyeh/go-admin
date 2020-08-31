@@ -2,74 +2,31 @@ import React, { useState, Fragment } from 'react'
 import { Table, Button, Input } from 'antd'
 import { useHistory } from 'react-router-dom'
 import { getQueryVariable } from '@/utils/index'
+import MenuForm from './form'
 
 import { menuTree } from '@/apis/system'
 import { useMount } from 'react-use'
-
-const tableColumns = [
-  {
-    title: '菜单名称',
-    dataIndex: 'name',
-    key: 'name'
-  },
-  {
-    title: '链接地址',
-    dataIndex: 'url',
-    key: 'url'
-  },
-  {
-    title: '组件路径',
-    dataIndex: 'path',
-    key: 'path'
-  },
-  {
-    title: '排序',
-    dataIndex: 'sort',
-    key: 'sort'
-  },
-  {
-    title: '图标',
-    dataIndex: 'icon',
-    key: 'icon'
-  },
-  {
-    title: '菜单数据',
-    dataIndex: 'data',
-    key: 'data'
-  },
-  {
-    title: '操作',
-    dataIndex: 'handle',
-    key: 'handle',
-    render() {
-      return (
-        <Fragment>
-          <Button>编辑</Button>
-          <Button>删除</Button>
-        </Fragment>
-      )
-    }
-  }
-]
+import { useRef } from 'react'
 
 export default () => {
   const history = useHistory()
 
   const [keyword] = useState(getQueryVariable('keyword'))
   const [tableData, setTableData] = useState([])
+  const formRef = useRef()
 
-  function handleSearch(e) {
+  const handleSearch = (e) => {
     history.push('/system/menu?keyword=' + e)
   }
 
-  async function getDataList() {
+  const getDataList = async () => {
     try {
       const { list = [] } = await menuTree({ keyword })
       setTableData(list)
     } catch (error) {}
   }
 
-  function handleAdd() {}
+  const handleAdd = () => {}
 
   useMount(getDataList)
 
@@ -81,7 +38,26 @@ export default () => {
           添加菜单
         </Button>
       </div>
-      <Table columns={tableColumns} dataSource={tableData} />
+      <Table dataSource={tableData}>
+        <Table.Column key="icon" dataIndex="icon" title="icon" align="center" />
+        <Table.Column key="name" dataIndex="name" title="菜单名称" align="center" />
+        <Table.Column key="url" dataIndex="url" title="链接" align="center" />
+        <Table.Column key="component" dataIndex="component" title="组件路径" align="center" />
+        <Table.Column key="sort" dataIndex="sort" title="排序" align="center" />
+        <Table.Column key="metaData" dataIndex="metaData" title="菜单数据" align="center" />
+        <Table.Column
+          key="handle"
+          title="操作"
+          align="center"
+          render={() => (
+            <Fragment>
+              <Button type="link">删除</Button>
+              <Button type="link">编辑</Button>
+            </Fragment>
+          )}
+        />
+      </Table>
+      <MenuForm />
     </div>
   )
 }

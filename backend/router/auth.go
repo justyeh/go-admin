@@ -12,6 +12,6 @@ func RegisterAuthRouter(router *gin.RouterGroup) {
 		auth.POST("/login", api.Login)
 		auth.POST("/logout", api.Logout)
 		auth.POST("/updatePassword", api.UpdatePassword)
-		auth.GET("/captcha", api.GenerateCaptcha)
+		auth.GET("/captcha", api.Captcha)
 	}
 }

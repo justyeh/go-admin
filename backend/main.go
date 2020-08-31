@@ -13,4 +13,5 @@ func main() {
 
 	// 程序结束前关闭数据库链接
 	defer global.MYSQL.Close()
+
 }

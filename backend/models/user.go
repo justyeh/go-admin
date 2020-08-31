@@ -50,13 +50,13 @@ func (l LoginUser) TableName() string {
 	return "user"
 }
 
+func (u User) TableName() string {
+	return "user"
+}
+
 func (l *LoginUser) UserWithAccountAndPassword() error {
 	err := global.MYSQL.Where("account = ? and password = ?", l.Account, l.Password).First(&l).Error
 	return err
-}
-
-func (u User) TableName() string {
-	return "user"
 }
 
 func (u *User) UserInfoWithID() error {

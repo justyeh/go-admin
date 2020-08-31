@@ -4,12 +4,25 @@ import (
 	"backend/models"
 	"backend/tools"
 	"strconv"
+	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/mojocn/base64Captcha"
 )
 
+const JWT_SECRET = "go-admin"
+
+type UserClaims struct {
+	ID string `json:"Id"`
+	jwt.StandardClaims
+}
+
+func (uc UserClaims) Valid() error {
+	return nil
+}
+
+// 登录
 func Login(c *gin.Context) {
 	var loginUser models.LoginUser
 	if err := c.ShouldBind(&loginUser); err != nil {
@@ -33,22 +46,30 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	token, err := createUserToken(UserClaims{user.ID, jwt.StandardClaims{ExpiresAt: time.Now().Add(time.Second * 10).Unix()}})
+	if err != nil {
+		tools.ResponseError(c, "生成token失败："+err.Error())
+		return
+	}
 	tools.ResponseSuccess(c, gin.H{
 		"message":  "登录成功",
-		"token":    "token",
+		"token":    token,
 		"userInfo": user,
 	})
 }
 
+// 退出登录
 func Logout(c *gin.Context) {
 
 }
 
+// 更新密码
 func UpdatePassword(c *gin.Context) {
 
 }
 
-func GenerateCaptcha(c *gin.Context) {
+// 验证码
+func Captcha(c *gin.Context) {
 	captchaWidth, err := strconv.Atoi(c.Query("w"))
 	if err != nil {
 		captchaWidth = 200
@@ -70,10 +91,8 @@ func GenerateCaptcha(c *gin.Context) {
 		return
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
-		ExpiresAt: 1500,
-	})
-	uuid, err := token.SignedString([]byte(content))
+	// 生成验证码token
+	token, err := createCaptchaToken(content)
 	if err != nil {
 		tools.ResponseError(c, "生成验证码UUID错误："+err.Error())
 		return
@@ -81,8 +100,27 @@ func GenerateCaptcha(c *gin.Context) {
 
 	tools.ResponseSuccess(c, gin.H{
 		"image":         item.EncodeB64string(),
-		"uuid":          uuid,
+		"uuid":          token,
 		"captchaWidth":  captchaWidth,
 		"captchaHeight": captchaHeight,
 	})
+}
+
+func createCaptchaToken(content string) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{ExpiresAt: time.Now().Add(time.Second * 10).Unix()})
+	return token.SignedString([]byte(content))
+}
+
+func createUserToken(uc UserClaims) (string, error) {
+	/* token := jwt.New(jwt.SigningMethodHS256)
+	token.Claims = claims
+	res, err := token.SignedString(j.SigningKey)
+	fmt.Println("err:", err)
+	return res, err */
+
+	return "", nil
+}
+
+func parseTolen(tokenString string) string {
+	return ""
 }
