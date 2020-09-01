@@ -26,7 +26,15 @@ export default () => {
     } catch (error) {}
   }
 
-  const handleAdd = () => {}
+  const handleAdd = () => {
+    formRef.current.init()
+  }
+
+  const handleDelete = ({ id }) => {}
+
+  const handleEdit = (data) => {
+    formRef.current.init(data)
+  }
 
   useMount(getDataList)
 
@@ -51,13 +59,17 @@ export default () => {
           align="center"
           render={() => (
             <Fragment>
-              <Button type="link">删除</Button>
-              <Button type="link">编辑</Button>
+              <Button type="link" onClick={handleDelete}>
+                删除
+              </Button>
+              <Button type="link" onClick={handleEdit}>
+                编辑
+              </Button>
             </Fragment>
           )}
         />
       </Table>
-      <MenuForm />
+      <MenuForm ref={formRef} menuData={tableData} onSuccess="getDataList" />
     </div>
   )
 }
