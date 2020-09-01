@@ -26,6 +26,11 @@ $siderWidth: 256px;
     height: $headerHeight;
     flex-shrink: 0;
     background-color: $c-main;
+    font-size: 26px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    padding-left: 24px;
   }
   .container {
     flex: 1;
