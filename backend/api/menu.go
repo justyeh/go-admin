@@ -15,31 +15,62 @@ func MenuTree(c *gin.Context) {
 		return
 	}
 	tools.ResponseSuccess(c, gin.H{
-		"list": sliceToTree(list),
+		"list": menuSliceToTree(list),
 	})
 }
 
 func AddMenu(c *gin.Context) {
-	menu := models.Menu{ID: tools.UUID()}
+	menu := models.Menu{}
 	if err := c.ShouldBind(&menu); err != nil {
 		tools.ResponseBindError(c, err)
 		return
 	}
+
+	now := tools.GetUnixNow()
+	menu.ID = tools.UUID()
+	menu.CreateAt = now
+	menu.UpdateAt = now
+
 	if err := menu.Create(); err != nil {
 		tools.ResponseError(c, err.Error())
+		return
 	}
-	tools.ResponseSuccess(c, gin.H{"data": menu})
+	tools.ResponseSuccess(c, gin.H{"message": "添加成功", "data": menu})
 }
 
 func EditMenu(c *gin.Context) {
+	menu := models.Menu{}
+	if err := c.ShouldBind(&menu); err != nil {
+		tools.ResponseBindError(c, err)
+		return
+	}
 
+	menu.UpdateAt = tools.GetUnixNow()
+
+	if err := menu.Update(); err != nil {
+		tools.ResponseError(c, err.Error())
+		return
+	}
+	tools.ResponseSuccess(c, gin.H{"message": "修改成功"})
 }
 
 func DeleteMenu(c *gin.Context) {
+	menu := models.Menu{ID: c.Param("id")}
 
+	if len(menu.ID) == 0 {
+		tools.ResponseError(c, "无效的菜单ID")
+		return
+	}
+
+	if err := menu.Delete(); err != nil {
+		tools.ResponseError(c, err.Error())
+		return
+	}
+
+	tools.ResponseSuccess(c, gin.H{"message": "删除成功"})
 }
 
-func sliceToTree(source []models.Menu) []models.Menu {
+func menuSliceToTree(source []models.Menu) []models.Menu {
 	result := []models.Menu{}
 
 	// 获取id集合
@@ -63,13 +94,13 @@ func sliceToTree(source []models.Menu) []models.Menu {
 
 	// 遍历，处理所有子节点
 	for _, item := range source {
-		handleChildNode(&result, item)
+		handleMenuChildNode(&result, item)
 	}
 
 	return result
 }
 
-func handleChildNode(list *[]models.Menu, m models.Menu) {
+func handleMenuChildNode(list *[]models.Menu, m models.Menu) {
 	for index, item := range *list {
 		if item.ID == m.Pid {
 			(*list)[index].Children = append(item.Children, m)
@@ -77,7 +108,7 @@ func handleChildNode(list *[]models.Menu, m models.Menu) {
 		}
 
 		if len(item.Children) > 0 {
-			handleChildNode(&(*list)[index].Children, m)
+			handleMenuChildNode(&(*list)[index].Children, m)
 		}
 	}
 END:

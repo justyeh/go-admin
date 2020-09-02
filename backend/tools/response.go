@@ -1,7 +1,6 @@
 package tools
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -21,7 +20,6 @@ func ResponseError(c *gin.Context, message string) {
 }
 
 func getTranslateError(s string) string {
-	fmt.Println(123)
 	arr := strings.Split(s, "'")
 
 	if len(arr) < 6 {

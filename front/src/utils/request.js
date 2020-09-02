@@ -21,8 +21,7 @@ service.interceptors.request.use(
 // response 拦截器
 service.interceptors.response.use(
   (response) => {
-    const { status, message } = response.data
-
+    const { status, message = '' } = response.data
     if (status === 200) {
       return response.data
     } else {

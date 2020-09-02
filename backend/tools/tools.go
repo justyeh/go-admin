@@ -1,6 +1,10 @@
 package tools
 
-import uuid "github.com/satori/go.uuid"
+import (
+	"time"
+
+	uuid "github.com/satori/go.uuid"
+)
 
 // 判断切片中是否存在某个元素
 func IsExistInSlice(source []interface{}, target interface{}) bool {
@@ -15,4 +19,9 @@ func IsExistInSlice(source []interface{}, target interface{}) bool {
 // 生成UUID
 func UUID() string {
 	return uuid.NewV1().String()
+}
+
+// 获取当前时间戳
+func GetUnixNow() int64 {
+	return time.Now().Unix()
 }

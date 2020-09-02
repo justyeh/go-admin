@@ -12,7 +12,23 @@ func RegisterSystemRouter(router *gin.RouterGroup) {
 		menu.GET("/tree", api.MenuTree)
 		menu.POST("/", api.AddMenu)
 		menu.PUT("/", api.EditMenu)
-		menu.DELETE("/", api.DeleteMenu)
+		menu.DELETE("/:id", api.DeleteMenu)
+	}
+
+	dept := router.Group("/system/dept")
+	{
+		dept.GET("/tree", api.DeptTree)
+		dept.POST("/", api.AddDept)
+		dept.PUT("/", api.EditDept)
+		dept.DELETE("/:id", api.DeleteDept)
+	}
+
+	job := router.Group("/system/job")
+	{
+		job.GET("/tree", api.JobList)
+		job.POST("/", api.AddJob)
+		job.PUT("/", api.EditJob)
+		job.DELETE("/:id", api.DeleteJob)
 	}
 
 	/* user := router.Group("/user")

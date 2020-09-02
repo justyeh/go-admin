@@ -8,47 +8,35 @@ import (
 )
 
 type Pagination struct {
-	Index int
-	Size  int
-	SortKey  string
-	SortVal  string
-}
-
-func (p *Pagination) SetIndex(index int){
-	p.Index = index
-}
-
-func (p *Pagination) SetSize(size int){
-	p.Size = size
-}
-
-func (p *Pagination) SetSort(key,val string){
-	p.SortKey = key
-	p.SortVal = val
+	Current int
+	Size    int
+	SortKey string
+	SortVal string
 }
 
 func NewPagination(c *gin.Context) Pagination {
-	p := Pagination{}
+	page := Pagination{}
 
-	index,err := strconv.Atoi(c.Query("pageIndex"))
-	if err != nil{
-		index = 0
+	current, err := strconv.Atoi(c.Query("current"))
+	if err != nil {
+		current = 1
 	}
-	p.SetIndex(index)
+	page.Current = current
 
-	size ,err:= strconv.Atoi(c.Query("pageSize"))
-	if err!= nil{
+	size, err := strconv.Atoi(c.Query("size"))
+	if err != nil {
 		size = 10
 	}
-	p.SetSize(size)
+	page.Size = size
 
-	sort := strings.Split(c.Query("sort"),",")
-	if len(sort)==2 && len(sort[0]) > 0{
+	sort := strings.Split(c.Query("sort"), ",")
+	if len(sort) == 2 && len(sort[0]) > 0 {
 		sortVal := sort[1]
-		if sortVal != "asc" && sortVal != "desc"{
+		if sortVal != "asc" && sortVal != "desc" {
 			sortVal = "desc"
 		}
-		p.SetSort(sort[0],sortVal)
+		page.SortKey = sort[0]
+		page.SortVal = sortVal
 	}
-	return p
+	return page
 }

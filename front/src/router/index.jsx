@@ -16,7 +16,6 @@ function LoadableComponent({ layout, component }) {
   })
 
   const Layout = layout === 'fullpage' ? Fullpage : Management
-
   return (
     <Layout>
       <Component />
@@ -25,7 +24,7 @@ function LoadableComponent({ layout, component }) {
 }
 
 export default function Router() {
-  const onEnter = useCallback(({ path, component, layout, title }) => {
+  const onEnter = ({ path, component, layout, title }) => {
     // 设置title
     document.title = title ? 'G-CMS' : 'G-CMS ' + title
 
@@ -48,7 +47,7 @@ export default function Router() {
         return <Redirect to={`/login?redirect=${encodeURIComponent(pathname + search)}`} />
       }
     }
-  }, [])
+  }
 
   return (
     <BrowserRouter>

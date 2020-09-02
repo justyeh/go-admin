@@ -16,7 +16,7 @@ func InitMysql() {
 		os.Exit(0)
 	}
 
-	// db.LogMode(true)
+	db.LogMode(true)
 	db.DB().SetMaxIdleConns(CONFIG.Mysql.MaxIdleConns)
 	db.DB().SetMaxOpenConns(CONFIG.Mysql.MaxOpenConns)
 
