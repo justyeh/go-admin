@@ -1,15 +1,12 @@
-import React, { useState, Fragment } from 'react'
-import { Table, Button, Input, Modal, notification } from 'antd'
+import React, { useState, Fragment, useRef } from 'react'
+import { useMount } from 'react-use'
 import { useHistory } from 'react-router-dom'
-import { getQueryVariable } from '@/utils'
+import { Table, Button, Input, Modal, notification } from 'antd'
+import { getQueryVariable, dateFormat } from '@/utils'
 import DeptForm from './form'
 
-import { deptTree } from '@/apis/system'
-import { useMount } from 'react-use'
-import { useRef } from 'react'
+import { deptTree, delDept } from '@/apis/system'
 
-import { delDept } from '@/apis/system'
- 
 export default () => {
   const history = useHistory()
 
@@ -67,7 +64,7 @@ export default () => {
       <Table loading={tableLoading} pagination={false} size="small" rowKey="id" dataSource={tableData}>
         <Table.Column dataIndex="name" title="部门名称" />
         <Table.Column dataIndex="sort" title="排序" align="center" />
-        <Table.Column title="创建时间" align="center" render={(row) => row.createAt} />
+        <Table.Column title="创建时间" align="center" render={(row) => dateFormat(row.createAt)} />
         <Table.Column
           title="操作"
           align="center"

@@ -23,13 +23,9 @@ func (menu *Menu) TableName() string {
 	return "menu"
 }
 
-func (menu *Menu) MenuById() error {
-	return global.MYSQL.Where("id = ?", menu.ID).First(&menu).Error
-}
-
-func (menu *Menu) MenuTreeWithName() ([]Menu, error) {
+func (menu *Menu) MenuTree() ([]Menu, error) {
 	list := []Menu{}
-	err := global.MYSQL.Where("name like ?", "%"+menu.Name+"%").Order("sort asc").Order("create_at").Find(&list).Error
+	err := global.MYSQL.Where("name LIKE ?", "%"+menu.Name+"%").Order("sort ASC").Order("create_at").Find(&list).Error
 	return list, err
 }
 
@@ -46,25 +42,27 @@ func (menu *Menu) Create() error {
 }
 
 func (menu *Menu) Delete() error {
-	var count int
-	err := global.MYSQL.Table("role_menu").Where("menu_id = ? ", menu.ID).Count(&count).Error
-	if err != nil {
+	tx := global.MYSQL.Begin()
+	if err := tx.Exec("DELETE FROM role_menu WHERE menu_id = ?", menu.ID).Error; err != nil {
+		tx.Rollback()
 		return err
 	}
-	if count > 0 {
-		return errors.New("删除失败，该菜单存在关联角色")
+	if err := tx.Delete(menu).Error; err != nil {
+		tx.Rollback()
+		return err
 	}
-	return global.MYSQL.Delete(menu).Error
+	tx.Commit()
+	return nil
 }
 
 func (menu *Menu) Update() error {
 	var count int
-	err := global.MYSQL.Table("menu").Where("id != ? and name = ?", menu.ID, menu.Name).Count(&count).Error
+	err := global.MYSQL.Table("menu").Where("id <> ? AND name = ?", menu.ID, menu.Name).Count(&count).Error
 	if err != nil {
 		return err
 	}
 	if count > 0 {
-		return errors.New("创建失败，该菜单名称已被占用")
+		return errors.New("修改失败，该菜单名称已被占用")
 	}
 	return global.MYSQL.Model(&menu).Updates(map[string]interface{}{
 		"name":      menu.Name,

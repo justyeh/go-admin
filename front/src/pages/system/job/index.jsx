@@ -1,22 +1,19 @@
-import React, { useState, Fragment } from 'react'
-import { Table, Button, Input, Modal, notification } from 'antd'
+import React, { useRef, useState, Fragment } from 'react'
+import { useMount } from 'react-use'
 import { useHistory } from 'react-router-dom'
-import { getQueryVariable, bindPage } from '@/utils'
+import { Table, Button, Input, Modal, notification } from 'antd'
+import { getQueryVariable, bindPage, dateFormat } from '@/utils'
 import JobForm from './form'
 import Pagination from '@/components/Pagination'
 import qs from 'qs'
-import { jobTree } from '@/apis/system'
-import { useMount, useSetState } from 'react-use'
-import { useRef } from 'react'
 
-import { delJob } from '@/apis/system'
-import { useCallback } from 'react'
+import { jobList, delJob } from '@/apis/system'
 
 export default () => {
   const history = useHistory()
 
   const [keyword] = useState(getQueryVariable('keyword'))
-  const [page, setPage] = useSetState(bindPage)
+  const [page, setPage] = useState(bindPage)
   const [tableData, setTableData] = useState([])
   const [tableLoading, setTableLoading] = useState(false)
   const formRef = useRef()
@@ -39,7 +36,7 @@ export default () => {
   const getDataList = async () => {
     setTableLoading(true)
     try {
-      const { list = [], total = 0 } = await jobTree({ keyword, current: page.current, size: page.size })
+      const { list = [], total = 0 } = await jobList({ keyword, current: page.current, size: page.size })
       setTableData(list)
       setPage((val) => ({ ...val, total: total }))
     } catch (error) {}
@@ -83,7 +80,7 @@ export default () => {
       <Table loading={tableLoading} pagination={false} size="small" rowKey="id" dataSource={tableData}>
         <Table.Column dataIndex="name" title="岗位名称" />
         <Table.Column dataIndex="sort" title="排序" align="center" />
-        <Table.Column title="创建时间" align="center" render={(row) => row.createAt} />
+        <Table.Column title="创建时间" align="center" render={(row) => dateFormat(row.createAt)} />
         <Table.Column
           title="操作"
           align="center"
@@ -101,7 +98,7 @@ export default () => {
       </Table>
 
       <Pagination page={page} onChange={handlePageChange} />
-      <JobForm ref={formRef} jobData={tableData} onSuccess={getDataList} />
+      <JobForm ref={formRef} onSuccess={getDataList} />
     </div>
   )
 }

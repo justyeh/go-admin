@@ -19,13 +19,9 @@ func (dept *Dept) TableName() string {
 	return "dept"
 }
 
-func (dept *Dept) DeptById() error {
-	return global.MYSQL.Where("id = ?", dept.ID).First(&dept).Error
-}
-
-func (dept *Dept) DeptTreeWithName() ([]Dept, error) {
+func (dept *Dept) DeptTree() ([]Dept, error) {
 	list := []Dept{}
-	err := global.MYSQL.Where("name like ?", "%"+dept.Name+"%").Order("sort asc").Order("create_at").Find(&list).Error
+	err := global.MYSQL.Where("name LIKE ?", "%"+dept.Name+"%").Order("sort DESC").Order("create_at").Find(&list).Error
 	return list, err
 }
 
@@ -55,12 +51,12 @@ func (dept *Dept) Delete() error {
 
 func (dept *Dept) Update() error {
 	var count int
-	err := global.MYSQL.Table("dept").Where("id != ? and name = ?", dept.ID, dept.Name).Count(&count).Error
+	err := global.MYSQL.Table("dept").Where("id <> ? AND name = ?", dept.ID, dept.Name).Count(&count).Error
 	if err != nil {
 		return err
 	}
 	if count > 0 {
-		return errors.New("创建失败，该部门名称已被占用")
+		return errors.New("修改失败，该部门名称已被占用")
 	}
 	return global.MYSQL.Model(&dept).Updates(map[string]interface{}{
 		"name":      dept.Name,

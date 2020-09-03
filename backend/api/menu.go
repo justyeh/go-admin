@@ -9,7 +9,7 @@ import (
 
 func MenuTree(c *gin.Context) {
 	menu := models.Menu{Name: c.Query("keyword")}
-	list, err := menu.MenuTreeWithName()
+	list, err := menu.MenuTree()
 	if err != nil {
 		tools.ResponseError(c, err.Error())
 		return

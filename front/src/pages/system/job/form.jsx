@@ -28,7 +28,6 @@ const JobForm = ({ onSuccess }, ref) => {
       id: data.id || '',
       name: data.name || '',
       sort: data.sort ? Number(data.sort) : 1,
-      pid: data.pid || '0'
     }
     setFormData(formData)
     formIns.resetFields()

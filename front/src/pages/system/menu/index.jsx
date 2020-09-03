@@ -1,15 +1,12 @@
-import React, { useState, Fragment } from 'react'
+import React, { useRef, useState, Fragment } from 'react'
+import { useMount } from 'react-use'
+import { useHistory } from 'react-router-dom'
 import { Table, Button, Input, Modal, notification } from 'antd'
 import AntIcon from '@/components/AntIcon'
-import { useHistory } from 'react-router-dom'
 import { getQueryVariable } from '@/utils/index'
 import MenuForm from './form'
 
-import { menuTree } from '@/apis/system'
-import { useMount } from 'react-use'
-import { useRef } from 'react'
-
-import { delMenu } from '@/apis/system'
+import { menuTree, delMenu } from '@/apis/system'
 
 export default () => {
   const history = useHistory()

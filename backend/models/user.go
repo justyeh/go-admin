@@ -55,7 +55,7 @@ func (u User) TableName() string {
 }
 
 func (l *LoginUser) UserWithAccountAndPassword() error {
-	err := global.MYSQL.Where("account = ? and password = ?", l.Account, l.Password).First(&l).Error
+	err := global.MYSQL.Where("account = ? AND password = ?", l.Account, l.Password).First(&l).Error
 	return err
 }
 

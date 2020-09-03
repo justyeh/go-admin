@@ -11,11 +11,12 @@ func JobList(c *gin.Context) {
 	job := models.Job{Name: c.Query("keyword")}
 	page := tools.NewPagination(c)
 
-	list, total, err := job.JobListWithName(page)
+	list, total, err := job.JobList(page)
 	if err != nil {
 		tools.ResponseError(c, err.Error())
 		return
 	}
+
 	tools.ResponseSuccess(c, gin.H{
 		"list":  list,
 		"total": total,

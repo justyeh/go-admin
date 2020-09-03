@@ -9,7 +9,7 @@ import (
 
 func DeptTree(c *gin.Context) {
 	dept := models.Dept{Name: c.Query("keyword")}
-	list, err := dept.DeptTreeWithName()
+	list, err := dept.DeptTree()
 	if err != nil {
 		tools.ResponseError(c, err.Error())
 		return

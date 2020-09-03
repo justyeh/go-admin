@@ -15,6 +15,22 @@ func RegisterSystemRouter(router *gin.RouterGroup) {
 		menu.DELETE("/:id", api.DeleteMenu)
 	}
 
+	permission := router.Group("/system/permission")
+	{
+		permission.GET("/tree", api.PermissionTree)
+		permission.POST("/", api.AddPermission)
+		permission.PUT("/", api.EditPermission)
+		permission.DELETE("/:id", api.DeletePermission)
+	}
+
+	role := router.Group("/system/role")
+	{
+		role.GET("/list", api.RoleList)
+		role.POST("/", api.AddRole)
+		role.PUT("/", api.EditRole)
+		role.DELETE("/:id", api.DeleteRole)
+	}
+
 	dept := router.Group("/system/dept")
 	{
 		dept.GET("/tree", api.DeptTree)
@@ -25,41 +41,22 @@ func RegisterSystemRouter(router *gin.RouterGroup) {
 
 	job := router.Group("/system/job")
 	{
-		job.GET("/tree", api.JobList)
+		job.GET("/list", api.JobList)
 		job.POST("/", api.AddJob)
 		job.PUT("/", api.EditJob)
 		job.DELETE("/:id", api.DeleteJob)
 	}
 
-	/* user := router.Group("/user")
+	dictionary := router.Group("/system/dictionary")
 	{
-		user.GET("/", api.UserList)
-		user.POST("/", api.AddUser)
-		user.PUT("/", api.EditUser)
-		user.DELETE("/", api.DeleteUser)
-	}
+		dictionary.GET("/main/list", api.DictionaryList)
+		dictionary.POST("/main/", api.AddDictionary)
+		dictionary.PUT("/main/", api.EditDictionary)
+		dictionary.DELETE("/main/:id", api.DeleteDictionary)
 
-	role := router.Group("/role")
-	{
-		role.GET("/", api.RoleList)
-		role.POST("/", api.AddRole)
-		role.PUT("/", api.EditRole)
-		role.DELETE("/", api.DeleteRole)
+		dictionary.GET("/detail/list", api.DictionaryDetailList)
+		dictionary.POST("/detail/", api.AddDictionaryDetail)
+		dictionary.PUT("/detail/", api.EditDictionaryDetail)
+		dictionary.DELETE("/detail/:id", api.DeleteDictionaryDetail)
 	}
-
-	permission := router.Group("/permission")
-	{
-		permission.GET("/", api.PermissionList)
-		permission.POST("/", api.AddPermission)
-		permission.PUT("/", api.EditPermission)
-		permission.DELETE("/", api.DeletePermission)
-	}
-
-	dictionary := router.Group("/dictionary")
-	{
-		dictionary.GET("/", api.DictionaryList)
-		dictionary.POST("/", api.AddDictionary)
-		dictionary.PUT("/", api.EditDictionary)
-		dictionary.DELETE("/", api.DeleteDictionary)
-	} */
 }
