@@ -7,12 +7,9 @@ import (
 
 type Role struct {
 	ID       string `json:"id"`
-	Code     string `json:"code" binding:"required"`
 	Name     string `json:"name"  binding:"required"`
-	Status   string `json:"status"`
-	Pid      string `json:"pid"`
-	Sort     int    `json:"sort"`
-	Children []Role `json:"children"`
+	Status   string `json:"status" binding:"required,oneof=active ban"`
+	Remark   string `json:"remark"`
 	CreateAt int64  `json:"createAt"`
 	UpdateAt int64  `json:"updateAt"`
 }
@@ -23,13 +20,18 @@ func (role *Role) TableName() string {
 
 func (role *Role) RoleList() ([]Role, error) {
 	list := []Role{}
-	err := global.MYSQL.Where("name LIKE ?", "%"+role.Name+"%").Order("create_at").Find(&list).Error
+	var err error
+	if len(role.Name) == 0 {
+		err = global.MYSQL.Order("create_at").Find(&list).Error
+	} else {
+		err = global.MYSQL.Where("name LIKE ?", "%"+role.Name+"%").Order("create_at").Find(&list).Error
+	}
 	return list, err
 }
 
 func (role *Role) Create() error {
 	var count int
-	err := global.MYSQL.Table("role").Where("code = ? ", role.Name).Count(&count).Error
+	err := global.MYSQL.Table("role").Where("name = ? ", role.Name).Count(&count).Error
 	if err != nil {
 		return err
 	}
@@ -54,12 +56,15 @@ func (role *Role) Delete() error {
 }
 
 func (role *Role) UpdateStatus() error {
-	return global.MYSQL.Model(role).Update("status", role.Status).Error
+	return global.MYSQL.Model(&role).Updates(map[string]interface{}{
+		"status":    role.Status,
+		"update_at": role.UpdateAt,
+	}).Error
 }
 
 func (role *Role) Update() error {
 	var count int
-	err := global.MYSQL.Table("role").Where("id <> ? AND code = ?", role.ID, role.Name).Count(&count).Error
+	err := global.MYSQL.Table("role").Where("id <> ? AND name = ?", role.ID, role.Name).Count(&count).Error
 	if err != nil {
 		return err
 	}
@@ -67,11 +72,9 @@ func (role *Role) Update() error {
 		return errors.New("修改失败，该角色名称已被占用")
 	}
 	return global.MYSQL.Model(&role).Updates(map[string]interface{}{
-		"code":      role.Code,
 		"name":      role.Name,
 		"status":    role.Status,
-		"pid":       role.Pid,
-		"sort":      role.Sort,
+		"remark":    role.Remark,
 		"update_at": role.UpdateAt,
 	}).Error
 }

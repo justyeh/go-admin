@@ -23,7 +23,10 @@ func (job *Job) JobList(page tools.Pagination) ([]Job, int, error) {
 	var total int
 	var err error
 
-	db := global.MYSQL.Where("name LIKE ?", "%"+job.Name+"%")
+	db := global.MYSQL
+	if len(job.Name) > 0 {
+		db = db.Where("name LIKE ?", "%"+job.Name+"%")
+	}
 	err = db.Table("job").Count(&total).Error
 	if err != nil || total == 0 {
 		return list, total, err

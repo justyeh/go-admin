@@ -20,16 +20,14 @@ func PermissionTree(c *gin.Context) {
 }
 
 func AddPermission(c *gin.Context) {
-	permission := models.Permission{}
+	now := tools.GetUnixNow()
+	permission := models.Permission{CreateAt: now, UpdateAt: now}
 	if err := c.ShouldBind(&permission); err != nil {
 		tools.ResponseBindError(c, err)
 		return
 	}
 
-	now := tools.GetUnixNow()
 	permission.ID = tools.UUID()
-	permission.CreateAt = now
-	permission.UpdateAt = now
 
 	if err := permission.Create(); err != nil {
 		tools.ResponseError(c, err.Error())
@@ -39,13 +37,11 @@ func AddPermission(c *gin.Context) {
 }
 
 func EditPermission(c *gin.Context) {
-	permission := models.Permission{}
+	permission := models.Permission{UpdateAt: tools.GetUnixNow()}
 	if err := c.ShouldBind(&permission); err != nil {
 		tools.ResponseBindError(c, err)
 		return
 	}
-
-	permission.UpdateAt = tools.GetUnixNow()
 
 	if err := permission.Update(); err != nil {
 		tools.ResponseError(c, err.Error())

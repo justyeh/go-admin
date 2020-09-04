@@ -23,16 +23,14 @@ func DictionaryList(c *gin.Context) {
 }
 
 func AddDictionary(c *gin.Context) {
-	dictionary := models.Dictionary{}
+	now := tools.GetUnixNow()
+	dictionary := models.Dictionary{CreateAt: now, UpdateAt: now}
 	if err := c.ShouldBind(&dictionary); err != nil {
 		tools.ResponseBindError(c, err)
 		return
 	}
 
-	now := tools.GetUnixNow()
 	dictionary.ID = tools.UUID()
-	dictionary.CreateAt = now
-	dictionary.UpdateAt = now
 
 	if err := dictionary.Create(); err != nil {
 		tools.ResponseError(c, err.Error())
@@ -42,13 +40,11 @@ func AddDictionary(c *gin.Context) {
 }
 
 func EditDictionary(c *gin.Context) {
-	dictionary := models.Dictionary{}
+	dictionary := models.Dictionary{UpdateAt: tools.GetUnixNow()}
 	if err := c.ShouldBind(&dictionary); err != nil {
 		tools.ResponseBindError(c, err)
 		return
 	}
-
-	dictionary.UpdateAt = tools.GetUnixNow()
 
 	if err := dictionary.Update(); err != nil {
 		tools.ResponseError(c, err.Error())
@@ -85,16 +81,14 @@ func DictionaryDetailList(c *gin.Context) {
 }
 
 func AddDictionaryDetail(c *gin.Context) {
-	dictionaryDetail := models.DictionaryDetail{}
+	now := tools.GetUnixNow()
+	dictionaryDetail := models.DictionaryDetail{CreateAt: now, UpdateAt: now}
 	if err := c.ShouldBind(&dictionaryDetail); err != nil {
 		tools.ResponseBindError(c, err)
 		return
 	}
 
-	now := tools.GetUnixNow()
 	dictionaryDetail.ID = tools.UUID()
-	dictionaryDetail.CreateAt = now
-	dictionaryDetail.UpdateAt = now
 
 	if err := dictionaryDetail.Create(); err != nil {
 		tools.ResponseError(c, err.Error())
@@ -104,13 +98,11 @@ func AddDictionaryDetail(c *gin.Context) {
 }
 
 func EditDictionaryDetail(c *gin.Context) {
-	dictionaryDetail := models.DictionaryDetail{}
+	dictionaryDetail := models.DictionaryDetail{UpdateAt: tools.GetUnixNow()}
 	if err := c.ShouldBind(&dictionaryDetail); err != nil {
 		tools.ResponseBindError(c, err)
 		return
 	}
-
-	dictionaryDetail.UpdateAt = tools.GetUnixNow()
 
 	if err := dictionaryDetail.Update(); err != nil {
 		tools.ResponseError(c, err.Error())

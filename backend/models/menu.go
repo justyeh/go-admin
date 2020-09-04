@@ -25,7 +25,12 @@ func (menu *Menu) TableName() string {
 
 func (menu *Menu) MenuTree() ([]Menu, error) {
 	list := []Menu{}
-	err := global.MYSQL.Where("name LIKE ?", "%"+menu.Name+"%").Order("sort ASC").Order("create_at").Find(&list).Error
+	var err error
+	if len(menu.Name) == 0 {
+		err = global.MYSQL.Order("sort ASC").Order("create_at").Find(&list).Error
+	} else {
+		err = global.MYSQL.Where("name LIKE ?", "%"+menu.Name+"%").Order("sort ASC").Order("create_at").Find(&list).Error
+	}
 	return list, err
 }
 

@@ -37,7 +37,10 @@ func (dictionary *Dictionary) DictionaryList(page tools.Pagination) ([]Dictionar
 	var total int
 	var err error
 
-	db := global.MYSQL.Where("name LIKE ?", "%"+dictionary.Name+"%")
+	db := global.MYSQL
+	if len(dictionary.Name) > 0 {
+		db = db.Where("name LIKE ?", "%"+dictionary.Name+"%")
+	}
 	err = db.Table("dictionary").Count(&total).Error
 	if err != nil || total == 0 {
 		return list, total, err

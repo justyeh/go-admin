@@ -20,16 +20,14 @@ func MenuTree(c *gin.Context) {
 }
 
 func AddMenu(c *gin.Context) {
-	menu := models.Menu{}
+	now := tools.GetUnixNow()
+	menu := models.Menu{CreateAt: now, UpdateAt: now}
 	if err := c.ShouldBind(&menu); err != nil {
 		tools.ResponseBindError(c, err)
 		return
 	}
 
-	now := tools.GetUnixNow()
 	menu.ID = tools.UUID()
-	menu.CreateAt = now
-	menu.UpdateAt = now
 
 	if err := menu.Create(); err != nil {
 		tools.ResponseError(c, err.Error())
@@ -39,13 +37,11 @@ func AddMenu(c *gin.Context) {
 }
 
 func EditMenu(c *gin.Context) {
-	menu := models.Menu{}
+	menu := models.Menu{UpdateAt: tools.GetUnixNow()}
 	if err := c.ShouldBind(&menu); err != nil {
 		tools.ResponseBindError(c, err)
 		return
 	}
-
-	menu.UpdateAt = tools.GetUnixNow()
 
 	if err := menu.Update(); err != nil {
 		tools.ResponseError(c, err.Error())

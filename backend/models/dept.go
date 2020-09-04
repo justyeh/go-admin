@@ -21,7 +21,12 @@ func (dept *Dept) TableName() string {
 
 func (dept *Dept) DeptTree() ([]Dept, error) {
 	list := []Dept{}
-	err := global.MYSQL.Where("name LIKE ?", "%"+dept.Name+"%").Order("sort DESC").Order("create_at").Find(&list).Error
+	var err error
+	if len(dept.Name) == 0 {
+		err = global.MYSQL.Order("sort DESC").Order("create_at").Find(&list).Error
+	} else {
+		err = global.MYSQL.Where("name LIKE ?", "%"+dept.Name+"%").Order("sort DESC").Order("create_at").Find(&list).Error
+	}
 	return list, err
 }
 

@@ -20,16 +20,14 @@ func DeptTree(c *gin.Context) {
 }
 
 func AddDept(c *gin.Context) {
-	dept := models.Dept{}
+	now := tools.GetUnixNow()
+	dept := models.Dept{CreateAt: now, UpdateAt: now}
 	if err := c.ShouldBind(&dept); err != nil {
 		tools.ResponseBindError(c, err)
 		return
 	}
 
-	now := tools.GetUnixNow()
 	dept.ID = tools.UUID()
-	dept.CreateAt = now
-	dept.UpdateAt = now
 
 	if err := dept.Create(); err != nil {
 		tools.ResponseError(c, err.Error())
@@ -39,13 +37,11 @@ func AddDept(c *gin.Context) {
 }
 
 func EditDept(c *gin.Context) {
-	dept := models.Dept{}
+	dept := models.Dept{UpdateAt: tools.GetUnixNow()}
 	if err := c.ShouldBind(&dept); err != nil {
 		tools.ResponseBindError(c, err)
 		return
 	}
-
-	dept.UpdateAt = tools.GetUnixNow()
 
 	if err := dept.Update(); err != nil {
 		tools.ResponseError(c, err.Error())

@@ -34,6 +34,8 @@ func getTranslateError(s string) string {
 		return field + "字段为必填项"
 	case "email":
 		return field + "字段邮箱格式错误"
+	case "oneof":
+		return field + "字段的值不符合要求"
 	default:
 		return s
 	}

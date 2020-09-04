@@ -24,16 +24,14 @@ func JobList(c *gin.Context) {
 }
 
 func AddJob(c *gin.Context) {
-	job := models.Job{}
+	now := tools.GetUnixNow()
+	job := models.Job{CreateAt: now, UpdateAt: now}
 	if err := c.ShouldBind(&job); err != nil {
 		tools.ResponseBindError(c, err)
 		return
 	}
 
-	now := tools.GetUnixNow()
 	job.ID = tools.UUID()
-	job.CreateAt = now
-	job.UpdateAt = now
 
 	if err := job.Create(); err != nil {
 		tools.ResponseError(c, err.Error())
@@ -43,13 +41,11 @@ func AddJob(c *gin.Context) {
 }
 
 func EditJob(c *gin.Context) {
-	job := models.Job{}
+	job := models.Job{UpdateAt: tools.GetUnixNow()}
 	if err := c.ShouldBind(&job); err != nil {
 		tools.ResponseBindError(c, err)
 		return
 	}
-
-	job.UpdateAt = tools.GetUnixNow()
 
 	if err := job.Update(); err != nil {
 		tools.ResponseError(c, err.Error())

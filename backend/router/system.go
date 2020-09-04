@@ -7,6 +7,15 @@ import (
 )
 
 func RegisterSystemRouter(router *gin.RouterGroup) {
+	user := router.Group("/system/user")
+	{
+		user.GET("/list", api.UserList)
+		user.POST("/", api.AddUser)
+		user.PUT("/", api.EditUser)
+		user.PUT("/updateUserStatus", api.UpdateUserStatus)
+		user.DELETE("/:id", api.DeleteUser)
+	}
+
 	menu := router.Group("/system/menu")
 	{
 		menu.GET("/tree", api.MenuTree)
@@ -28,6 +37,7 @@ func RegisterSystemRouter(router *gin.RouterGroup) {
 		role.GET("/list", api.RoleList)
 		role.POST("/", api.AddRole)
 		role.PUT("/", api.EditRole)
+		role.PUT("/updateRoleStatus", api.UpdateRoleStatus)
 		role.DELETE("/:id", api.DeleteRole)
 	}
 
