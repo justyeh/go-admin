@@ -2,7 +2,6 @@ package models
 
 import (
 	"backend/global"
-	"backend/tools"
 	"errors"
 )
 
@@ -35,16 +34,16 @@ type LoginUser struct {
 type User struct {
 	ID         string           `json:"id"`
 	Account    string           `json:"account" binding:"required"`
-	Nickname   string           `json:"nickname"`
-	Phone      string           `json:"phone"`
-	Email      string           `json:"email"`
+	Nickname   string           `json:"nickname" binding:"required"`
+	Phone      string           `json:"phone" binding:"required"`
+	Email      string           `json:"email" binding:"required"`
+	Status     string           `json:"status" binding:"required"`
 	Dept       UserDept         `json:"dept"`
 	Job        UserJob          `json:"job"`
 	Menu       []UserMenu       `json:"menu"`
-	Permission []UserPermission `json:"permission" `
-	Status     string           `json:"status"`
-	CreateAt   tools.TimeStamp  `json:"createAt"`
-	UpdateAt   tools.TimeStamp  `json:"updateAt"`
+	Permission []UserPermission `json:"permission"`
+	CreateAt   int64            `json:"createAt"`
+	UpdateAt   int64            `json:"updateAt"`
 }
 
 func (l LoginUser) TableName() string {
@@ -109,7 +108,7 @@ func (user *User) UpdateStatus() error {
 
 func (user *User) Update() error {
 	var count int
-	err := global.MYSQL.Table("user").Where("id <> ? AND name = ?", user.ID, user.Name).Count(&count).Error
+	err := global.MYSQL.Table("user").Where("id <> ? AND account = ?", user.ID, user.Account).Count(&count).Error
 	if err != nil {
 		return err
 	}

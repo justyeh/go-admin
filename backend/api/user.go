@@ -8,7 +8,7 @@ import (
 )
 
 func UserList(c *gin.Context) {
-	user := models.User{Name: c.Query("keyword")}
+	user := models.User{Account: c.Query("keyword"), Nickname: c.Query("keyword")}
 	list, err := user.UserList()
 	if err != nil {
 		tools.ResponseError(c, err.Error())
@@ -53,15 +53,10 @@ func EditUser(c *gin.Context) {
 }
 
 func UpdateUserStatus(c *gin.Context) {
-	user := models.User{Name: "temp", UpdateAt: tools.GetUnixNow()}
+	user := models.User{ID: c.PostForm("id"), Status: c.PostForm("status"), UpdateAt: tools.GetUnixNow()}
 
-	if err := c.ShouldBind(&user); err != nil {
-		tools.ResponseBindError(c, err)
-		return
-	}
-
-	if len(user.ID) == 0 {
-		tools.ResponseError(c, "无效的用户ID")
+	if len(user.ID) == 0 || len(user.Status) == 0 {
+		tools.ResponseError(c, "参数错误，缺失id/status")
 		return
 	}
 
