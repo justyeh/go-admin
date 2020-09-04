@@ -2,6 +2,7 @@ package models
 
 import (
 	"backend/global"
+	"backend/tools"
 	"errors"
 )
 
@@ -18,15 +19,21 @@ func (role *Role) TableName() string {
 	return "role"
 }
 
-func (role *Role) RoleList() ([]Role, error) {
-	list := []Role{}
+func (role *Role) RoleList(page tools.Pagination) ([]Role, int, error) {
+	var list = []Role{}
+	var total int
 	var err error
-	if len(role.Name) == 0 {
-		err = global.MYSQL.Order("create_at").Find(&list).Error
-	} else {
-		err = global.MYSQL.Where("name LIKE ?", "%"+role.Name+"%").Order("create_at").Find(&list).Error
+
+	db := global.MYSQL
+	if len(role.Name) > 0 {
+		db = db.Where("name LIKE ?", "%"+role.Name+"%")
 	}
-	return list, err
+	err = db.Table("role").Count(&total).Error
+	if err != nil || total == 0 {
+		return list, total, err
+	}
+	err = db.Order("create_at DESC").Offset((page.Current - 1) * page.Size).Limit(page.Size).Find(&list).Error
+	return list, total, err
 }
 
 func (role *Role) Create() error {

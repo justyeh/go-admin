@@ -34,6 +34,7 @@ type LoginUser struct {
 type User struct {
 	ID         string           `json:"id"`
 	Account    string           `json:"account" binding:"required"`
+	Password   string           `json:"-"`
 	Nickname   string           `json:"nickname" binding:"required"`
 	Phone      string           `json:"phone" binding:"required"`
 	Email      string           `json:"email" binding:"required"`
@@ -69,7 +70,7 @@ func (u *User) UserInfoWithID() error {
 func (user *User) UserList() ([]User, error) {
 	list := []User{}
 	var err error
-	err = global.MYSQL.Where("account LIKE ? OR nickname LIKE ?", "%"+user.Account+"%", "%"+user.Nickname+"%").Order("create_at").Find(&list).Error
+	err = global.MYSQL.Where("id <> '0' AND (account LIKE ? OR nickname LIKE ?)", "%"+user.Account+"%", "%"+user.Nickname+"%").Order("create_at").Find(&list).Error
 	return list, err
 }
 
@@ -116,12 +117,10 @@ func (user *User) Update() error {
 		return errors.New("修改失败，该账号名称已被占用")
 	}
 	return global.MYSQL.Model(&user).Updates(map[string]interface{}{
-		"account":  user.Account,
-		"nickname": user.Nickname,
-
-		"email": user.Nickname,
-		"phone": user.Nickname,
-
+		"account":   user.Account,
+		"nickname":  user.Nickname,
+		"email":     user.Nickname,
+		"phone":     user.Nickname,
 		"status":    user.Status,
 		"update_at": user.UpdateAt,
 	}).Error

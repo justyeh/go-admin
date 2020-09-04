@@ -1,8 +1,14 @@
 package tools
 
 import (
+	"bytes"
+	"crypto/md5"
+	"encoding/hex"
+	"encoding/json"
+	"io/ioutil"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -24,4 +30,30 @@ func UUID() string {
 // 获取当前时间戳
 func GetUnixNow() int64 {
 	return time.Now().Unix()
+}
+
+// MD5
+func GetMD5(data string) string {
+	hash := md5.New()
+	hash.Write([]byte(data))
+	return hex.EncodeToString(hash.Sum(nil))
+}
+
+// 获取body数据
+func GetBodyData(c *gin.Context, key string) string {
+	data, err := c.GetRawData()
+	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(data)) // important：把读过的字节流重新放到body
+	if err != nil {
+		return ""
+	}
+	m := make(map[string]string)
+	if err := json.Unmarshal(data, &m); err != nil {
+		return ""
+	}
+	for k, v := range m {
+		if k == key {
+			return v
+		}
+	}
+	return ""
 }

@@ -1,7 +1,7 @@
 import React, { useRef, useState, Fragment } from 'react'
-import { useMount, useUnmount } from 'react-use'
+import { useMount } from 'react-use'
 import { useHistory } from 'react-router-dom'
-import { Table, Button, Input, Modal, Row, Col, Tree, Spin, notification } from 'antd'
+import { Table, Button, Input, Modal, Row, Col, Tree, Switch, Spin, notification } from 'antd'
 import { DownOutlined } from '@ant-design/icons'
 import { getQueryVariable, bindPage, convertAntdNodeData } from '@/utils'
 import UserForm from './form'
@@ -10,7 +10,7 @@ import qs from 'qs'
 
 import './style.scss'
 
-import { userList, delUser, deptTree, jobList, roleList } from '@/apis/system'
+import { userList, delUser, updateUserStatus, deptTree, jobList, roleList } from '@/apis/system'
 
 export default () => {
   const history = useHistory()
@@ -116,6 +116,16 @@ export default () => {
     formRef.current.init(data)
   }
 
+  const handleChangeStatus = async ({ id }, status) => {
+    setTableLoading(true)
+    try {
+      await updateUserStatus({ id, status: status ? 'active' : 'ban' })
+      getTableData()
+    } catch (error) {
+      setTableLoading(false)
+    }
+  }
+
   useMount(() => {
     getTableData()
     getRelyData()
@@ -152,7 +162,18 @@ export default () => {
             <Table.Column dataIndex="phone" title="手机" align="center" />
             <Table.Column dataIndex="email" title="邮箱" align="center" />
             <Table.Column title="部门/岗位" align="center" render={(row) => ({})} />
-            <Table.Column title="状态" align="center" render={(row) => ({})} />
+            <Table.Column
+              title="状态"
+              align="center"
+              render={(row) => (
+                <Switch
+                  checkedChildren="启用"
+                  unCheckedChildren="停用"
+                  checked={row.status === 'active'}
+                  onChange={(status) => handleChangeStatus(row, status)}
+                />
+              )}
+            />
             <Table.Column title="角色" align="center" render={(row) => ({})} />
             <Table.Column
               title="操作"

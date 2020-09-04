@@ -9,13 +9,16 @@ import (
 
 func RoleList(c *gin.Context) {
 	role := models.Role{Name: c.Query("keyword")}
-	list, err := role.RoleList()
+	page := tools.NewPagination(c)
+
+	list, count, err := role.RoleList(page)
 	if err != nil {
 		tools.ResponseError(c, err.Error())
 		return
 	}
 	tools.ResponseSuccess(c, gin.H{
-		"list": list,
+		"list":  list,
+		"total": count,
 	})
 }
 

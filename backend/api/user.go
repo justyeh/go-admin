@@ -29,6 +29,7 @@ func AddUser(c *gin.Context) {
 	}
 
 	user.ID = tools.UUID()
+	user.Password = tools.GetMD5("123456")
 
 	if err := user.Create(); err != nil {
 		tools.ResponseError(c, err.Error())
@@ -53,7 +54,7 @@ func EditUser(c *gin.Context) {
 }
 
 func UpdateUserStatus(c *gin.Context) {
-	user := models.User{ID: c.PostForm("id"), Status: c.PostForm("status"), UpdateAt: tools.GetUnixNow()}
+	user := models.User{ID: tools.GetBodyData(c, "id"), Status: tools.GetBodyData(c, "status"), UpdateAt: tools.GetUnixNow()}
 
 	if len(user.ID) == 0 || len(user.Status) == 0 {
 		tools.ResponseError(c, "参数错误，缺失id/status")
@@ -69,6 +70,11 @@ func UpdateUserStatus(c *gin.Context) {
 
 func DeleteUser(c *gin.Context) {
 	user := models.User{ID: c.Param("id")}
+
+	if user.ID == "0" {
+		tools.ResponseError(c, "改用户无法删除")
+		return
+	}
 
 	if len(user.ID) == 0 {
 		tools.ResponseError(c, "无效的用户ID")

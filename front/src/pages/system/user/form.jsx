@@ -1,7 +1,6 @@
 import React, { useState, useImperativeHandle, forwardRef } from 'react'
 import { Modal, Form, Input, Switch, notification, Select, TreeSelect } from 'antd'
 import { useForm } from 'antd/lib/form/Form'
-import { convertAntdNodeData } from '@/utils/'
 
 import { editUser, addUser } from '@/apis/system'
 import { useEffect } from 'react'
