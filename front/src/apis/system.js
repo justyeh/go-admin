@@ -1,5 +1,26 @@
 import request from '@/utils/request'
 
+/* 用户 */
+export function userList(params) {
+  return request.get('/api/system/user/list', { params })
+}
+
+export function addUser(data) {
+  return request.post('/api/system/user', data)
+}
+
+export function delUser(id) {
+  return request.delete('/api/system/user/' + id)
+}
+
+export function editUser(data) {
+  return request.put('/api/system/user', data)
+}
+
+export function updateUserStatus(data) {
+  return request.put('/api/system/user/updateUserStatus', data)
+}
+
 /* 权限 */
 export function roleList(params) {
   return request.get('/api/system/role/list', { params })
@@ -15,6 +36,10 @@ export function delRole(id) {
 
 export function editRole(data) {
   return request.put('/api/system/role', data)
+}
+
+export function updateRoleStatus(data) {
+  return request.put('/api/system/role/updateRoleStatus', data)
 }
 
 /* 菜单 */

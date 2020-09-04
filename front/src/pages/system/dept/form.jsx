@@ -1,20 +1,9 @@
 import React, { useState, useImperativeHandle, forwardRef, useEffect } from 'react'
 import { Modal, Form, Input, InputNumber, TreeSelect, notification } from 'antd'
 import { useForm } from 'antd/lib/form/Form'
+import { convertAntdNodeData } from '@/utils/'
 
 import { editDept, addDept } from '@/apis/system'
-
-const { TreeNode } = TreeSelect
-
-function renderTreeNodes(data = []) {
-  return data.map((item) => {
-    return (
-      <TreeNode key={item.id} title={item.name} value={item.id}>
-        {item.children && item.children.length > 0 && renderTreeNodes(item.children)}
-      </TreeNode>
-    )
-  })
-}
 
 const DeptForm = ({ deptData, onSuccess }, ref) => {
   const [visible, setVisible] = useState(false)
@@ -75,7 +64,7 @@ const DeptForm = ({ deptData, onSuccess }, ref) => {
           <InputNumber style={{ width: '100%' }} />
         </Form.Item>
         <Form.Item name="pid" label="父级部门" rules={[{ required: true, message: '请选择父级部门!' }]}>
-          <TreeSelect>{renderTreeNodes(treeData)}</TreeSelect>
+          <TreeSelect treeData={convertAntdNodeData(treeData)} />
         </Form.Item>
       </Form>
     </Modal>

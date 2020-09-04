@@ -20,7 +20,7 @@ export default () => {
     history.push('/system/menu?keyword=' + e)
   }
 
-  const getDataList = async () => {
+  const getTableData = async () => {
     setTableLoading(true)
     try {
       const { list = [] } = await menuTree({ keyword })
@@ -41,7 +41,7 @@ export default () => {
         try {
           await delMenu(id)
           notification.success({ message: '操作成功' })
-          getDataList()
+          getTableData()
         } catch (error) {}
         setTableLoading(false)
       }
@@ -52,7 +52,7 @@ export default () => {
     formRef.current.init(data)
   }
 
-  useMount(getDataList)
+  useMount(getTableData)
 
   return (
     <div className="menu-page">
@@ -84,7 +84,7 @@ export default () => {
           )}
         />
       </Table>
-      <MenuForm ref={formRef} menuData={tableData} onSuccess={getDataList} />
+      <MenuForm ref={formRef} menuData={tableData} onSuccess={getTableData} />
     </div>
   )
 }

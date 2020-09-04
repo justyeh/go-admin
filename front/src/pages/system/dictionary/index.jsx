@@ -42,7 +42,7 @@ export default () => {
   }
 
   /* 获取字典列表 */
-  const getDataList = async () => {
+  const getTableData = async () => {
     setTableLoading(true)
     try {
       const { list = [], total = 0 } = await dictionaryList({ keyword, current: page.current, size: page.size })
@@ -123,7 +123,7 @@ export default () => {
     getDictionaryDetailList(keys[0])
   }
 
-  useMount(getDataList)
+  useMount(getTableData)
 
   return (
     <div className="dictionary-page">
@@ -212,7 +212,7 @@ export default () => {
         </Col>
       </Row>
 
-      <DictionaryForm ref={formRef} onSuccess={getDataList} />
+      <DictionaryForm ref={formRef} onSuccess={getTableData} />
       <DictionaryDetailForm ref={detailFormRef} onSuccess={() => getDictionaryDetailList(selectedRowKeys[0])} />
     </div>
   )

@@ -19,7 +19,7 @@ export default () => {
     history.push('/system/dept?keyword=' + e)
   }
 
-  const getDataList = async () => {
+  const getTableData = async () => {
     setTableLoading(true)
     try {
       const { list = [] } = await deptTree({ keyword })
@@ -40,7 +40,7 @@ export default () => {
         try {
           await delDept(id)
           notification.success({ message: '操作成功' })
-          getDataList()
+          getTableData()
         } catch (error) {}
         setTableLoading(false)
       }
@@ -51,7 +51,7 @@ export default () => {
     formRef.current.init(data)
   }
 
-  useMount(getDataList)
+  useMount(getTableData)
 
   return (
     <div className="dept-page">
@@ -80,7 +80,7 @@ export default () => {
           )}
         />
       </Table>
-      <DeptForm ref={formRef} deptData={tableData} onSuccess={getDataList} />
+      <DeptForm ref={formRef} deptData={tableData} onSuccess={getTableData} />
     </div>
   )
 }

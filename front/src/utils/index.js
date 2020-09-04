@@ -59,3 +59,22 @@ export function dateFormat(timeStamp, fmt = 'yyyy-MM-dd hh:mm:ss') {
 
   return fmt
 }
+
+export function convertAntdNodeData(
+  data = [],
+  fieldNames = { key: 'id', title: 'name', label: 'name',value: 'id', children: 'children' }
+) {
+  return data.map((item) => {
+    let temp = {
+      key: item[fieldNames.key],
+      title: item[fieldNames.title],
+      label: item[fieldNames.label],
+      value: item[fieldNames.value]
+    }
+    const children = item[fieldNames.children] || []
+    if (children.length > 0) {
+      temp.children = convertAntdNodeData(children, fieldNames)
+    }
+    return temp
+  })
+}

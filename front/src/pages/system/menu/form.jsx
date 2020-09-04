@@ -1,20 +1,9 @@
 import React, { useState, useImperativeHandle, forwardRef, useEffect } from 'react'
 import { Modal, Form, Input, InputNumber, TreeSelect, notification } from 'antd'
 import { useForm } from 'antd/lib/form/Form'
+import { convertAntdNodeData } from '@/utils/'
 
 import { editMenu, addMenu } from '@/apis/system'
-
-const { TreeNode } = TreeSelect
-
-function renderTreeNodes(data = []) {
-  return data.map((item) => {
-    return (
-      <TreeNode key={item.id} title={item.name} value={item.id}>
-        {item.children && item.children.length > 0 && renderTreeNodes(item.children)}
-      </TreeNode>
-    )
-  })
-}
 
 const MenuForm = ({ menuData, onSuccess }, ref) => {
   const [visible, setVisible] = useState(false)
@@ -91,7 +80,7 @@ const MenuForm = ({ menuData, onSuccess }, ref) => {
           <Input.TextArea placeholder="格式：key=val，多个使用请使用#分割" />
         </Form.Item>
         <Form.Item name="pid" label="父级菜单" rules={[{ required: true, message: '请选择父级菜单!' }]}>
-          <TreeSelect>{renderTreeNodes(treeData)}</TreeSelect>
+          <TreeSelect treeData={convertAntdNodeData(treeData)} />
         </Form.Item>
       </Form>
     </Modal>

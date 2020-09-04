@@ -19,7 +19,7 @@ export default () => {
     history.push('/system/permission?keyword=' + e)
   }
 
-  const getDataList = async () => {
+  const getTableData = async () => {
     setTableLoading(true)
     try {
       const { list = [] } = await permissionTree({ keyword })
@@ -40,7 +40,7 @@ export default () => {
         try {
           await delPermission(id)
           notification.success({ message: '操作成功' })
-          getDataList()
+          getTableData()
         } catch (error) {}
         setTableLoading(false)
       }
@@ -51,7 +51,7 @@ export default () => {
     formRef.current.init(data)
   }
 
-  useMount(getDataList)
+  useMount(getTableData)
 
   return (
     <div className="permission-page">
@@ -80,7 +80,7 @@ export default () => {
           )}
         />
       </Table>
-      <PermissionForm ref={formRef} permissionData={tableData} onSuccess={getDataList} />
+      <PermissionForm ref={formRef} permissionData={tableData} onSuccess={getTableData} />
     </div>
   )
 }

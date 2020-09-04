@@ -1,16 +1,19 @@
 import React, { useRef, useState, Fragment } from 'react'
 import { useMount } from 'react-use'
 import { useHistory } from 'react-router-dom'
-import { Table, Button, Input, Modal, notification, Tag } from 'antd'
-import { getQueryVariable } from '@/utils'
+import { Table, Button, Input, Modal, notification, Switch } from 'antd'
+import { getQueryVariable, bindPage } from '@/utils'
 import RoleForm from './form'
+import Pagination from '@/components/Pagination'
+import qs from 'qs'
 
-import { roleList, delRole } from '@/apis/system'
+import { roleList, delRole, updateRoleStatus } from '@/apis/system'
 
 export default () => {
   const history = useHistory()
 
   const [keyword] = useState(getQueryVariable('keyword'))
+  const [page, setPage] = useState(bindPage)
   const [tableData, setTableData] = useState([])
   const [tableLoading, setTableLoading] = useState(false)
   const formRef = useRef()
@@ -19,11 +22,23 @@ export default () => {
     history.push('/system/role?keyword=' + e)
   }
 
-  const getDataList = async () => {
+  const handlePageChange = (current, size, isReplace = false) => {
+    history[!!isReplace ? 'replace' : 'push'](
+      '/system/job?' +
+        qs.stringify({
+          keyword: keyword,
+          current: current,
+          size: size
+        })
+    )
+  }
+
+  const getTableData = async () => {
     setTableLoading(true)
     try {
-      const { list = [] } = await roleList({ keyword })
+      const { list = [], total = 0 } = await roleList({ keyword, current: page.current, size: page.size })
       setTableData(list)
+      setPage((val) => ({ ...val, total: total }))
     } catch (error) {}
     setTableLoading(false)
   }
@@ -40,7 +55,8 @@ export default () => {
         try {
           await delRole(id)
           notification.success({ message: '操作成功' })
-          getDataList()
+          const current = tableData.length === 1 ? --page.current : page.current
+          handlePageChange(current, page.size, 1)
         } catch (error) {}
         setTableLoading(false)
       }
@@ -51,7 +67,17 @@ export default () => {
     formRef.current.init(data)
   }
 
-  useMount(getDataList)
+  const handleChangeStatus = async ({ id }, status) => {
+    setTableLoading(true)
+    try {
+      await updateRoleStatus({ id, status: status ? 'active' : 'ban' })
+      getTableData()
+    } catch (error) {
+      setTableLoading(false)
+    }
+  }
+
+  useMount(getTableData)
 
   return (
     <div className="role-page">
@@ -62,14 +88,20 @@ export default () => {
         </Button>
       </div>
       <Table loading={tableLoading} pagination={false} size="small" rowKey="id" dataSource={tableData}>
-        <Table.Column dataIndex="name" title="角色名称" />
-        <Table.Column dataIndex="code" title="角色CODE" align="center" />
+        <Table.Column dataIndex="name" title="角色名称" align="center" />
         <Table.Column
-          title="角色CODE"
+          title="状态"
           align="center"
-          render={(row) => <Tag>{row.status === 'Active' ? '启用' : '停用'}</Tag>}
+          render={(row) => (
+            <Switch
+              checkedChildren="启用"
+              unCheckedChildren="停用"
+              checked={row.status === 'active'}
+              onChange={(status) => handleChangeStatus(row, status)}
+            />
+          )}
         />
-        <Table.Column dataIndex="sort" title="排序" align="center" />
+        <Table.Column title="备注" render={(row) => row.remark || '--'} />
         <Table.Column
           title="操作"
           align="center"
@@ -85,7 +117,8 @@ export default () => {
           )}
         />
       </Table>
-      <RoleForm ref={formRef} onSuccess={getDataList} />
+      <Pagination page={page} onChange={handlePageChange} />
+      <RoleForm ref={formRef} onSuccess={getTableData} />
     </div>
   )
 }

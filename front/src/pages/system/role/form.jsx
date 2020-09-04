@@ -1,5 +1,5 @@
 import React, { useState, useImperativeHandle, forwardRef } from 'react'
-import { Modal, Form, Input, InputNumber, Switch, notification } from 'antd'
+import { Modal, Form, Input, Switch, notification } from 'antd'
 import { useForm } from 'antd/lib/form/Form'
 
 import { editRole, addRole } from '@/apis/system'
@@ -14,7 +14,7 @@ const RoleForm = ({ onSuccess }, ref) => {
     setSubmitLoading(true)
     try {
       const submitData = { ...formData, ...values }
-      submitData.status = submitData.status ? 'Active' : 'Ban'
+      submitData.status = submitData.status ? 'active' : 'ban'
       submitData.id ? await editRole(submitData) : await addRole(submitData)
       notification.success({ message: '操作成功' })
       setVisible(false)
@@ -23,14 +23,12 @@ const RoleForm = ({ onSuccess }, ref) => {
     setSubmitLoading(false)
   }
 
-  function init(data = {}) {
+  function init(data = { status: 'active' }) {
     const formData = {
       id: data.id || '',
       name: data.name || '',
-      code: data.code || '',
-      status: data.status === 'Active',
-      sort: data.sort ? Number(data.sort) : 1,
-      pid: data.pid || '0'
+      status: data.status === 'active',
+      remark: data.remark || ''
     }
     setFormData(formData)
     formIns.resetFields()
@@ -57,14 +55,11 @@ const RoleForm = ({ onSuccess }, ref) => {
         <Form.Item name="name" label="名称" rules={[{ required: true, message: '请填写角色名称!' }]}>
           <Input />
         </Form.Item>
-        <Form.Item name="code" label="CODE" rules={[{ required: true, message: '请填写角色CODE!' }]}>
-          <Input />
-        </Form.Item>
         <Form.Item name="status" label="状态" valuePropName="checked">
           <Switch checkedChildren="启用" unCheckedChildren="停用" />
         </Form.Item>
-        <Form.Item name="sort" label="排序">
-          <InputNumber style={{ width: '100%' }} />
+        <Form.Item name="remark" label="备注">
+          <Input.TextArea />
         </Form.Item>
       </Form>
     </Modal>

@@ -1,0 +1,25 @@
+.user-form {
+  overflow: hidden;
+  .ant-form-item {
+    float: left;
+    width: calc(50% - 10px);
+    &:nth-child(2n) {
+      margin-left: 20px;
+    }
+    &.full {
+      width: 100%;
+      margin-left: 0 !important;
+    }
+  }
+  .ant-form-item {
+    display: flex;
+    > .ant-form-item-label {
+      flex-shrink: 0;
+      width: 55px;
+    }
+    > .ant-form-item-control {
+      flex: 1;
+      overflow: hidden;
+    }
+  }
+}

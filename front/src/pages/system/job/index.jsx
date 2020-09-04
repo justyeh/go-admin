@@ -33,7 +33,7 @@ export default () => {
     )
   }
 
-  const getDataList = async () => {
+  const getTableData = async () => {
     setTableLoading(true)
     try {
       const { list = [], total = 0 } = await jobList({ keyword, current: page.current, size: page.size })
@@ -67,7 +67,7 @@ export default () => {
     formRef.current.init(data)
   }
 
-  useMount(getDataList)
+  useMount(getTableData)
 
   return (
     <div className="job-page">
@@ -98,7 +98,7 @@ export default () => {
       </Table>
 
       <Pagination page={page} onChange={handlePageChange} />
-      <JobForm ref={formRef} onSuccess={getDataList} />
+      <JobForm ref={formRef} onSuccess={getTableData} />
     </div>
   )
 }
