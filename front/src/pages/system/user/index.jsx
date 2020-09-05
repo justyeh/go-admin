@@ -21,16 +21,20 @@ export default () => {
   const [tableLoading, setTableLoading] = useState(false)
   const formRef = useRef()
 
+  const [selectDeptKeys, setSelectedDeptKeys] = useState([])
+
   const [deptData, setDeptData] = useState([])
   const [jobData, setJobData] = useState([])
   const [roleData, setRoleData] = useState([])
   const [deptLoading, setDeptLoading] = useState(false)
 
   const handleSearch = (e) => {
+    setCache()
     history.push('/system/user?keyword=' + e)
   }
 
   const handlePageChange = (current, size, isReplace = false) => {
+    setCache()
     history[!!isReplace ? 'replace' : 'push'](
       '/system/user?' +
         qs.stringify({
@@ -41,10 +45,22 @@ export default () => {
     )
   }
 
-  const getTableData = async () => {
+  const setCache = () => {
+    sessionStorage.setItem(
+      'RelyDataCache',
+      JSON.stringify({
+        exp: Date.now() + 1000 * 5, // 数据缓存5s
+        deptData,
+        jobData,
+        roleData
+      })
+    )
+  }
+
+  const getTableData = async (deptId = '') => {
     setTableLoading(true)
     try {
-      const { list = [], total = 0 } = await userList({ keyword, current: page.current, size: page.size })
+      const { list = [], total = 0 } = await userList({ keyword, current: page.current, size: page.size, deptId })
       setTableData(list)
       setPage((val) => ({ ...val, total: total }))
     } catch (error) {}
@@ -79,15 +95,6 @@ export default () => {
       setDeptData(deptData)
       setJobData(jobData)
       setRoleData(roleData)
-      sessionStorage.setItem(
-        'RelyDataCache',
-        JSON.stringify({
-          exp: Date.now() + 1000 * 5, // 数据缓存5s
-          deptData,
-          jobData,
-          roleData
-        })
-      )
     } catch (error) {}
     setDeptLoading(false)
   }
@@ -126,6 +133,10 @@ export default () => {
     }
   }
 
+  const handleDeptSlected = (selectedKeys) => {
+    getTableData(selectedKeys[0])
+  }
+
   useMount(() => {
     getTableData()
     getRelyData()
@@ -138,7 +149,13 @@ export default () => {
           <Spin spinning={deptLoading}>
             <div style={{ minHeight: 200 }}>
               {deptData.length > 0 && (
-                <Tree defaultExpandAll selectable switcherIcon={<DownOutlined />} treeData={deptData} />
+                <Tree
+                  defaultExpandAll
+                  selectable
+                  switcherIcon={<DownOutlined />}
+                  treeData={deptData}
+                  onSelect={handleDeptSlected}
+                />
               )}
             </div>
           </Spin>

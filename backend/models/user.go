@@ -2,6 +2,7 @@ package models
 
 import (
 	"backend/global"
+	"backend/tools"
 	"errors"
 )
 
@@ -67,11 +68,25 @@ func (u *User) UserInfoWithID() error {
 	return db.Error
 }
 
-func (user *User) UserList() ([]User, error) {
+func (user *User) UserList(page tools.Pagination) ([]User, int, error) {
 	list := []User{}
+	var total int
 	var err error
-	err = global.MYSQL.Where("id <> '0' AND (account LIKE ? OR nickname LIKE ?)", "%"+user.Account+"%", "%"+user.Nickname+"%").Order("create_at").Find(&list).Error
-	return list, err
+
+	db := global.MYSQL
+	if len(user.Account) > 0 || len(user.Nickname) > 0 {
+		db = db.Where("id <> '0' AND (account LIKE ? OR nickname LIKE ?)", "%"+user.Account+"%", "%"+user.Nickname+"%")
+	} else {
+		db = db.Where("id <> '0'")
+	}
+
+	err = db.Table("user").Count(&total).Error
+	if err != nil || total == 0 {
+		return list, total, err
+	}
+
+	err = db.Order("create_at DESC").Offset((page.Current - 1) * page.Size).Limit(page.Size).Find(&list).Error
+	return list, total, err
 }
 
 func (user *User) Create() error {

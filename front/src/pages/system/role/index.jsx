@@ -38,9 +38,11 @@ export default () => {
 
   // 查找
   const handleSearch = (e) => {
+    setCache()
     history.push('/system/role?keyword=' + e)
   }
   const handlePageChange = (current, size, isReplace = false) => {
+    setCache()
     history[!!isReplace ? 'replace' : 'push'](
       '/system/job?' +
         qs.stringify({
@@ -48,6 +50,17 @@ export default () => {
           current: current,
           size: size
         })
+    )
+  }
+
+  const setCache = () => {
+    sessionStorage.setItem(
+      'RelyDataCache',
+      JSON.stringify({
+        exp: Date.now() + 1000 * 5, // 数据缓存5s
+        menuData,
+        permissionData
+      })
     )
   }
 
@@ -84,14 +97,6 @@ export default () => {
       permissionData = convertAntdNodeData({ data: permissionData })
       setMenuData(menuData)
       setPermissionData(permissionData)
-      sessionStorage.setItem(
-        'RelyDataCache',
-        JSON.stringify({
-          exp: Date.now() + 1000 * 5, // 数据缓存5s
-          menuData,
-          permissionData
-        })
-      )
     } catch (error) {}
     setRelyLoading(false)
   }
