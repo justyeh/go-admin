@@ -54,6 +54,14 @@ func (role *Role) Delete() error {
 		tx.Rollback()
 		return err
 	}
+	if err := tx.Exec("DELETE FROM role_menu WHERE role_id = ?", role.ID).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	if err := tx.Exec("DELETE FROM role_permission WHERE role_id = ?", role.ID).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
 	if err := tx.Delete(role).Error; err != nil {
 		tx.Rollback()
 		return err
@@ -84,4 +92,28 @@ func (role *Role) Update() error {
 		"remark":    role.Remark,
 		"update_at": role.UpdateAt,
 	}).Error
+}
+
+func (role *Role) RoleMenuList() ([]Menu, error) {
+	list := []Menu{}
+	err := global.MYSQL.Raw("SELECT menu.id FROM menu,role_menu WHERE role_menu.role_id = ?", role.ID).Scan(&list).Error
+	return list, err
+}
+
+func (role *Role) RolePermisssionList() ([]Permission, error) {
+	list := []Permission{}
+	err := global.MYSQL.Raw("SELECT permission.id FROM permission,role_permission WHERE role_permission.role_id = ?", role.ID).Scan(&list).Error
+	return list, err
+}
+
+func (role *Role) UpdateRoleMenu() ([]Menu, error) {
+	list := []Menu{}
+	err := global.MYSQL.Raw("SELECT menu.id FROM menu,role_menu WHERE role_menu.role_id = ?", role.ID).Scan(&list).Error
+	return list, err
+}
+
+func (role *Role) UpdateRolePermisssion() ([]Permission, error) {
+	list := []Permission{}
+	err := global.MYSQL.Raw("SELECT permission.id FROM permission,role_permission WHERE role_permission.role_id = ?", role.ID).Scan(&list).Error
+	return list, err
 }
