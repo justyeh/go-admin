@@ -21,7 +21,7 @@ export default () => {
   const [tableLoading, setTableLoading] = useState(false)
   const formRef = useRef()
 
-  const [selectDeptKeys, setSelectedDeptKeys] = useState([])
+  const [selectDeptId] = useState(getQueryVariable('deptId'))
 
   const [deptData, setDeptData] = useState([])
   const [jobData, setJobData] = useState([])
@@ -29,20 +29,20 @@ export default () => {
   const [deptLoading, setDeptLoading] = useState(false)
 
   const handleSearch = (e) => {
-    setCache()
-    history.push('/system/user?keyword=' + e)
+    doSearch(e, selectDeptId, { current: 1, size: page.size })
   }
 
   const handlePageChange = (current, size, isReplace = false) => {
+    doSearch(keyword, selectDeptId, { current, size }, isReplace)
+  }
+
+  const handleDeptSlected = (selectedKeys) => {
+    doSearch(keyword, selectedKeys[0], { current: 1, size: page.size }, true)
+  }
+
+  const doSearch = (keyword = '', deptId = '', page = { current: 1, size: 10 }, isReplace = false) => {
     setCache()
-    history[!!isReplace ? 'replace' : 'push'](
-      '/system/user?' +
-        qs.stringify({
-          keyword: keyword,
-          current: current,
-          size: size
-        })
-    )
+    history[!!isReplace ? 'replace' : 'push']('/system/user?' + qs.stringify({ keyword, deptId, ...page }))
   }
 
   const setCache = () => {
@@ -57,10 +57,15 @@ export default () => {
     )
   }
 
-  const getTableData = async (deptId = '') => {
+  const getTableData = async () => {
     setTableLoading(true)
     try {
-      const { list = [], total = 0 } = await userList({ keyword, current: page.current, size: page.size, deptId })
+      const { list = [], total = 0 } = await userList({
+        keyword,
+        current: page.current,
+        size: page.size,
+        deptId: selectDeptId
+      })
       setTableData(list)
       setPage((val) => ({ ...val, total: total }))
     } catch (error) {}
@@ -112,7 +117,7 @@ export default () => {
           await delUser(id)
           notification.success({ message: '操作成功' })
           const current = tableData.length === 1 ? --page.current : page.current
-          handlePageChange(current, page.size, 1)
+          handlePageChange(current, page.size, true)
         } catch (error) {}
         setTableLoading(false)
       }
@@ -133,10 +138,6 @@ export default () => {
     }
   }
 
-  const handleDeptSlected = (selectedKeys) => {
-    getTableData(selectedKeys[0])
-  }
-
   useMount(() => {
     getTableData()
     getRelyData()
@@ -154,6 +155,7 @@ export default () => {
                   selectable
                   switcherIcon={<DownOutlined />}
                   treeData={deptData}
+                  defaultSelectedKeys={[selectDeptId]}
                   onSelect={handleDeptSlected}
                 />
               )}

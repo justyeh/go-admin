@@ -38,19 +38,16 @@ export default () => {
 
   // 查找
   const handleSearch = (e) => {
-    setCache()
-    history.push('/system/role?keyword=' + e)
+    doSearch(e, { current: 1, size: page.size })
   }
+
   const handlePageChange = (current, size, isReplace = false) => {
+    doSearch(keyword, { current, size }, isReplace)
+  }
+
+  const doSearch = (keyword = '', page = { current: 1, size: 10 }, isReplace = false) => {
     setCache()
-    history[!!isReplace ? 'replace' : 'push'](
-      '/system/job?' +
-        qs.stringify({
-          keyword: keyword,
-          current: current,
-          size: size
-        })
-    )
+    history[!!isReplace ? 'replace' : 'push']('/system/role?' + qs.stringify({ keyword, ...page }))
   }
 
   const setCache = () => {
