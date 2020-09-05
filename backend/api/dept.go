@@ -42,7 +42,10 @@ func EditDept(c *gin.Context) {
 		tools.ResponseBindError(c, err)
 		return
 	}
-
+	/* if dept.ID == dept.Pid {
+		tools.ResponseError(c, "参数不合法，pid不能等于id")
+		return
+	} */
 	if err := dept.Update(); err != nil {
 		tools.ResponseError(c, err.Error())
 		return

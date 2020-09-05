@@ -90,3 +90,63 @@ func DeleteRole(c *gin.Context) {
 
 	tools.ResponseSuccess(c, gin.H{"message": "删除成功"})
 }
+
+func RoleMenuList(c *gin.Context) {
+	role := models.Role{ID: c.Param("roleId")}
+	if len(role.ID) == 0 {
+		tools.ResponseError(c, "无效的角色Id")
+		return
+	}
+	list, err := role.RoleMenuList()
+	if err != nil {
+		tools.ResponseError(c, err.Error())
+		return
+	}
+	tools.ResponseSuccess(c, gin.H{
+		"list": list,
+	})
+}
+
+func RolePermissionList(c *gin.Context) {
+	role := models.Role{ID: c.Param("roleId")}
+	if len(role.ID) == 0 {
+		tools.ResponseError(c, "无效的角色Id")
+		return
+	}
+	list, err := role.RolePermisssionList()
+	if err != nil {
+		tools.ResponseError(c, err.Error())
+		return
+	}
+	tools.ResponseSuccess(c, gin.H{
+		"list": list,
+	})
+}
+
+func UpdateRoleMenu(c *gin.Context) {
+	/* role := models.Role{ID: c.Param("roleId")}
+	if len(role.ID) == 0 {
+		tools.ResponseError(c, "无效的角色Id")
+		return
+	}
+	list, err := role.RoleMenuList()
+	if err != nil {
+		tools.ResponseError(c, err.Error())
+		return
+	} */
+	tools.ResponseSuccess(c, gin.H{"message": "添加成功"})
+}
+
+func UpdateRolePermission(c *gin.Context) {
+	/* role := models.Role{ID: c.Param("roleId")}
+	if len(role.ID) == 0 {
+		tools.ResponseError(c, "无效的角色Id")
+		return
+	}
+	list, err := role.RolePermisssionList()
+	if err != nil {
+		tools.ResponseError(c, err.Error())
+		return
+	} */
+	tools.ResponseSuccess(c, gin.H{"message": "添加成功"})
+}

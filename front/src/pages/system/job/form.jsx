@@ -52,7 +52,7 @@ const JobForm = ({ onSuccess }, ref) => {
     >
       <Form form={formIns} labelCol={{ span: 4 }} onFinish={handleSubmit}>
         <Form.Item name="name" label="名称" rules={[{ required: true, message: '请填写岗位名称!' }]}>
-          <Input />
+          <Input autoFocus />
         </Form.Item>
         <Form.Item name="sort" label="排序">
           <InputNumber style={{ width: '100%' }} />

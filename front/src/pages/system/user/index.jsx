@@ -73,9 +73,9 @@ export default () => {
         jobList(),
         roleList()
       ])
-      deptData = convertAntdNodeData(deptData)
-      jobData = convertAntdNodeData(jobData)
-      roleData = convertAntdNodeData(roleData)
+      deptData = convertAntdNodeData({ data: deptData })
+      jobData = convertAntdNodeData({ data: jobData })
+      roleData = convertAntdNodeData({ data: roleData })
       setDeptData(deptData)
       setJobData(jobData)
       setRoleData(roleData)

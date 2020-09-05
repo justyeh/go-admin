@@ -43,6 +43,11 @@ func EditPermission(c *gin.Context) {
 		return
 	}
 
+	if permission.ID == permission.Pid {
+		tools.ResponseError(c, "参数不合法，pid不能等于id")
+		return
+	}
+
 	if err := permission.Update(); err != nil {
 		tools.ResponseError(c, err.Error())
 		return

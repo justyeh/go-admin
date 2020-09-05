@@ -73,7 +73,7 @@ const UserForm = ({ rely, onSuccess }, ref) => {
           label="账号"
           rules={[{ required: true }, { pattern: /^[a-zA-Z0-9_]*$/, message: '仅允许字母、数字、下划线' }]}
         >
-          <Input />
+          <Input autoFocus />
         </Form.Item>
         <Form.Item name="nickname" label="昵称" rules={[{ required: true }]}>
           <Input />

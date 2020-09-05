@@ -2,12 +2,22 @@ import React, { useRef, useState, Fragment } from 'react'
 import { useMount } from 'react-use'
 import { useHistory } from 'react-router-dom'
 import { Table, Button, Input, Modal, notification, Switch, Row, Col, Tabs, Spin, Tree } from 'antd'
-import { getQueryVariable, bindPage, convertAntdNodeData } from '@/utils'
+import { getQueryVariable, bindPage, convertAntdNodeData, formatTreeChechkedRelation } from '@/utils'
 import RoleForm from './form'
 import Pagination from '@/components/Pagination'
 import qs from 'qs'
 
-import { roleList, delRole, updateRoleStatus, menuTree, permissionTree } from '@/apis/system'
+import {
+  roleList,
+  delRole,
+  updateRoleStatus,
+  menuTree,
+  permissionTree,
+  roleMenuList,
+  rolePermissionList,
+  updateRoleMenu,
+  updateRolePermission
+} from '@/apis/system'
 
 export default () => {
   const history = useHistory()
@@ -19,15 +29,17 @@ export default () => {
   const formRef = useRef()
 
   const [selectedRowKeys, setSelectedRowKeys] = useState([])
+  const [checkedMenuKeys, setCheckedMenuKeys] = useState({ fullChecked: [], halfChecked: [] })
+  const [checkedPermissionKeys, setCheckedPermissionKeys] = useState({ fullChecked: [], halfChecked: [] })
 
   const [menuData, setMenuData] = useState([])
   const [permissionData, setPermissionData] = useState([])
   const [relyLoading, setRelyLoading] = useState(false)
 
+  // 查找
   const handleSearch = (e) => {
     history.push('/system/role?keyword=' + e)
   }
-
   const handlePageChange = (current, size, isReplace = false) => {
     history[!!isReplace ? 'replace' : 'push'](
       '/system/job?' +
@@ -39,6 +51,7 @@ export default () => {
     )
   }
 
+  // 获取角色列表
   const getTableData = async () => {
     setTableLoading(true)
     try {
@@ -49,6 +62,7 @@ export default () => {
     setTableLoading(false)
   }
 
+  // 获取所有菜单+角色
   const getRelyData = async () => {
     try {
       let RelyDataCache = JSON.parse(sessionStorage.getItem('RelyDataCache'))
@@ -66,8 +80,8 @@ export default () => {
     setRelyLoading(true)
     try {
       let [{ list: menuData = [] }, { list: permissionData = [] }] = await Promise.all([menuTree(), permissionTree()])
-      menuData = convertAntdNodeData(menuData)
-      permissionData = convertAntdNodeData(permissionData)
+      menuData = convertAntdNodeData({ data: menuData })
+      permissionData = convertAntdNodeData({ data: permissionData })
       setMenuData(menuData)
       setPermissionData(permissionData)
       sessionStorage.setItem(
@@ -82,10 +96,12 @@ export default () => {
     setRelyLoading(false)
   }
 
+  // 添加角色
   const handleAdd = () => {
     formRef.current.init()
   }
 
+  // 删除角色
   const handleDelete = ({ id }) => {
     Modal.confirm({
       title: '确认删除该数据吗？',
@@ -102,10 +118,12 @@ export default () => {
     })
   }
 
+  // 编辑角色
   const handleEdit = (data) => {
     formRef.current.init(data)
   }
 
+  // 修改角色状态
   const handleChangeStatus = async ({ id }, status) => {
     setTableLoading(true)
     try {
@@ -116,14 +134,66 @@ export default () => {
     }
   }
 
-  const handleSelectionChange = (keys) => {
+  // 处理表格选中事件
+  const handleSelectionChange = async (keys) => {
+    setRelyLoading(true)
     setSelectedRowKeys(keys)
+    try {
+      const [{ list: menuList = [] }, { list: permissionList = [] }] = await Promise.all([
+        roleMenuList(keys[0]),
+        rolePermissionList(keys[0])
+      ])
+
+      setCheckedMenuKeys(
+        formatTreeChechkedRelation(
+          menuData,
+          menuList.map((item) => item.id)
+        )
+      )
+      setCheckedPermissionKeys(
+        formatTreeChechkedRelation(
+          permissionData,
+          permissionList.map((item) => item.id)
+        )
+      )
+    } catch (error) {}
+    setRelyLoading(false)
+  }
+
+  // 保存角色的菜单和权限
+  const handleSaveMenuAndPermission = async () => {
+    setRelyLoading(true)
+    try {
+      Promise.all([
+        updateRoleMenu({
+          roleId: selectedRowKeys[0],
+          menuIds: [...checkedMenuKeys.fullChecked, ...checkedMenuKeys.halfChecked]
+        }),
+        updateRolePermission({
+          roleId: selectedRowKeys[0],
+          permissionIds: [...checkedPermissionKeys.fullChecked, ...checkedPermissionKeys.halfChecked]
+        })
+      ])
+    } catch (error) {}
+    setRelyLoading(true)
+  }
+
+  // 处理Tree选中事件
+  const handleTreeCheck = async (checkedKeys, evt, target) => {
+    if (target === 'menu') {
+      setCheckedMenuKeys({ fullChecked: checkedKeys, halfChecked: evt.halfCheckedKeys })
+    }
+    if (target === 'permission') {
+      setCheckedPermissionKeys({ fullChecked: checkedKeys, halfChecked: evt.halfCheckedKeys })
+    }
+    console.log(checkedKeys, evt)
   }
 
   useMount(() => {
     getTableData()
     getRelyData()
   })
+
   return (
     <div className="role-page">
       <Row gutter={20}>
@@ -181,12 +251,33 @@ export default () => {
         </Col>
         <Col span={8}>
           <Spin spinning={relyLoading}>
-            <Tabs defaultActiveKey="menu" tabBarExtraContent={<Button type="primary">保存</Button>}>
+            <Tabs
+              defaultActiveKey="menu"
+              tabBarExtraContent={
+                <Button type="primary" disabled={!selectedRowKeys[0]} onClick={handleSaveMenuAndPermission}>
+                  保存
+                </Button>
+              }
+            >
               <Tabs.TabPane key="menu" tab="菜单分布">
-                <Tree checkable disabled={!selectedRowKeys[0]} treeData={menuData} />
+                <Tree
+                  checkable
+                  selectable={false}
+                  disabled={!selectedRowKeys[0]}
+                  treeData={menuData}
+                  checkedKeys={checkedMenuKeys.fullChecked}
+                  onCheck={(checkedKeys, evt) => handleTreeCheck(checkedKeys, evt, 'menu')}
+                />
               </Tabs.TabPane>
               <Tabs.TabPane key="permission" tab="权限分配">
-                <Tree checkable disabled={!selectedRowKeys[0]} treeData={permissionData} />
+                <Tree
+                  checkable
+                  selectable={false}
+                  disabled={!selectedRowKeys[0]}
+                  treeData={permissionData}
+                  checkedKeys={checkedPermissionKeys.fullChecked}
+                  onCheck={(checkedKeys, evt) => handleTreeCheck(checkedKeys, evt, 'permission')}
+                />
               </Tabs.TabPane>
             </Tabs>
           </Spin>

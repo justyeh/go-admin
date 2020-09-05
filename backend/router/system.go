@@ -39,6 +39,11 @@ func RegisterSystemRouter(router *gin.RouterGroup) {
 		role.PUT("/", api.EditRole)
 		role.PUT("/updateRoleStatus", api.UpdateRoleStatus)
 		role.DELETE("/:id", api.DeleteRole)
+
+		role.GET("/list/menu/:roleId", api.RoleMenuList)
+		role.GET("/list/permission/:roleId", api.RolePermissionList)
+		role.POST("/list/menu", api.UpdateRoleMenu)
+		role.POST("/list/permission", api.UpdateRolePermission)
 	}
 
 	dept := router.Group("/system/dept")

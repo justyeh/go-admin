@@ -56,7 +56,7 @@ const DictionaryForm = ({ onSuccess }, ref) => {
           label="名称(KEY)"
           rules={[{ required: true }, { pattern: /^[a-z_]*$/, message: '仅允许小写字母、下划线' }]}
         >
-          <Input />
+          <Input autoFocus />
         </Form.Item>
         <Form.Item name="description" label="描述">
           <Input.TextArea />

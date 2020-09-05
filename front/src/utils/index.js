@@ -32,6 +32,7 @@ export function bindPage() {
   }
 }
 
+// 日期工具
 export function dateFormat(timeStamp, fmt = 'yyyy-MM-dd hh:mm:ss') {
   try {
     const date = new Date(timeStamp * 1000)
@@ -60,21 +61,36 @@ export function dateFormat(timeStamp, fmt = 'yyyy-MM-dd hh:mm:ss') {
   return fmt
 }
 
-export function convertAntdNodeData(
+// 将数据构造成antd需要的格式，disabledKey的作用，编辑模式时，保证节点本身及所有叶子节点不可选中
+export function convertAntdNodeData({
   data = [],
-  fieldNames = { key: 'id', title: 'name', label: 'name',value: 'id', children: 'children' }
-) {
+  disabledKey = '',
+  parentDisabled = false,
+  fieldNames = { key: 'id', title: 'name', label: 'name', value: 'id', children: 'children' }
+}) {
   return data.map((item) => {
+    const disabled = parentDisabled || item[fieldNames.key] === disabledKey
     let temp = {
       key: item[fieldNames.key],
       title: item[fieldNames.title],
       label: item[fieldNames.label],
-      value: item[fieldNames.value]
+      value: item[fieldNames.value],
+      disabled: disabled
     }
+
     const children = item[fieldNames.children] || []
     if (children.length > 0) {
-      temp.children = convertAntdNodeData(children, fieldNames)
+      temp.children = convertAntdNodeData({ data: children, disabledKey, fieldNames, parentDisabled: disabled })
     }
     return temp
   })
+}
+
+// 方法作用：设置Tree选中时，处理好选中与半选中的关系
+
+export function formatTreeChechkedRelation(sourceTree = [], checkedKeys = []) {
+  return {
+    fullChecked: [],
+    halfChecked: []
+  }
 }
