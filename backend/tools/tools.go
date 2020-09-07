@@ -6,6 +6,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"time"
 
@@ -15,6 +16,14 @@ import (
 
 // 判断切片中是否存在某个元素
 func IsExistInSlice(source []interface{}, target interface{}) bool {
+	for _, val := range source {
+		if target == val {
+			return true
+		}
+	}
+	return false
+}
+func IsExistInStringSlice(source []string, target interface{}) bool {
 	for _, val := range source {
 		if target == val {
 			return true
@@ -62,30 +71,37 @@ func GetBodyData(c *gin.Context, key string) string {
 		BodyData = string(data)
 		BodyMap = m
 	}
-
 	for k, v := range m {
 		if k == key {
 			return v
 		}
 	}
 	return ""
+}
 
+type tree struct {
+	ID string
 }
 
 func GetChildIds(tableName string, pid string) []string {
+	childList := []tree{}
+	recursionSelect(tableName, []tree{{ID: pid}}, &childList)
 	result := []string{}
-	recursionSelect(tableName, []string{pid}, &result)
+	for _, val := range childList {
+		result = append(result, val.ID)
+	}
 	return result
 }
 
-func recursionSelect(tableName string, pIds []string, result *[]string) {
+func recursionSelect(tableName string, pIds []tree, childList *[]tree) {
+	fmt.Println(pIds)
 	for _, val := range pIds {
-		ids := []string{}
-		if err := global.MYSQL.Exec("SELECT id FROM ? WHERE pid = ", tableName, val).Scan(&ids).Error; err != nil {
+		ids := []tree{}
+		if err := global.MYSQL.Table(tableName).Where("pid = ?", val.ID).Scan(&ids).Error; err != nil {
 			break
 		} else {
-			*result = append(*result, ids...)
-			recursionSelect(tableName, ids, result)
+			*childList = append(*childList, ids...)
+			recursionSelect(tableName, ids, childList)
 		}
 	}
 }
