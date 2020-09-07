@@ -42,8 +42,9 @@ func EditMenu(c *gin.Context) {
 		tools.ResponseBindError(c, err)
 		return
 	}
-	if menu.ID == menu.Pid {
-		tools.ResponseError(c, "参数不合法，pid不能等于id")
+	childIds := tools.GetChildIds("menu", menu.ID)
+	if tools.IsExistInStringSlice(childIds, menu.Pid) || menu.Pid == menu.ID {
+		tools.ResponseError(c, "参数不合法，pid不能为其本身或后代id")
 		return
 	}
 	if err := menu.Update(); err != nil {
@@ -55,17 +56,19 @@ func EditMenu(c *gin.Context) {
 
 func DeleteMenu(c *gin.Context) {
 	menu := models.Menu{ID: c.Param("id")}
-
 	if len(menu.ID) == 0 {
 		tools.ResponseError(c, "无效的菜单ID")
 		return
 	}
 
-	if err := menu.Delete(); err != nil {
+	childIds := tools.GetChildIds("menu", menu.ID)
+	ids := []string{menu.ID}
+	ids = append(ids, childIds...)
+
+	if err := menu.Delete(ids); err != nil {
 		tools.ResponseError(c, err.Error())
 		return
 	}
-
 	tools.ResponseSuccess(c, gin.H{"message": "删除成功"})
 }
 

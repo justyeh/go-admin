@@ -42,10 +42,11 @@ func EditDept(c *gin.Context) {
 		tools.ResponseBindError(c, err)
 		return
 	}
-	/* if dept.ID == dept.Pid {
-		tools.ResponseError(c, "参数不合法，pid不能等于id")
+	childIds := tools.GetChildIds("dept", dept.ID)
+	if tools.IsExistInStringSlice(childIds, dept.Pid) || dept.Pid == dept.ID {
+		tools.ResponseError(c, "参数不合法，pid不能为其本身或后代id")
 		return
-	} */
+	}
 	if err := dept.Update(); err != nil {
 		tools.ResponseError(c, err.Error())
 		return
@@ -55,13 +56,16 @@ func EditDept(c *gin.Context) {
 
 func DeleteDept(c *gin.Context) {
 	dept := models.Dept{ID: c.Param("id")}
-
 	if len(dept.ID) == 0 {
 		tools.ResponseError(c, "无效的部门ID")
 		return
 	}
 
-	if err := dept.Delete(); err != nil {
+	childIds := tools.GetChildIds("dept", dept.ID)
+	ids := []string{dept.ID}
+	ids = append(ids, childIds...)
+
+	if err := dept.Delete(ids); err != nil {
 		tools.ResponseError(c, err.Error())
 		return
 	}

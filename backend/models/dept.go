@@ -42,16 +42,16 @@ func (dept *Dept) Create() error {
 	return global.MYSQL.Create(dept).Error
 }
 
-func (dept *Dept) Delete() error {
+func (dept *Dept) Delete(ids []string) error {
 	var count int
-	err := global.MYSQL.Table("user").Where("dept_id = ? ", dept.ID).Count(&count).Error
+	err := global.MYSQL.Table("user").Where("dept_id in (?)", ids).Count(&count).Error
 	if err != nil {
 		return err
 	}
 	if count > 0 {
 		return errors.New("删除失败，该部门及其子部门存在关联用户")
 	}
-	return global.MYSQL.Delete(dept).Error
+	return global.MYSQL.Exec("DELETE FROM dept WHERE id IN (?)", ids).Error
 }
 
 func (dept *Dept) Update() error {

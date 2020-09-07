@@ -46,13 +46,13 @@ func (menu *Menu) Create() error {
 	return global.MYSQL.Create(menu).Error
 }
 
-func (menu *Menu) Delete() error {
+func (menu *Menu) Delete(ids []string) error {
 	tx := global.MYSQL.Begin()
-	if err := tx.Exec("DELETE FROM role_menu WHERE menu_id = ?", menu.ID).Error; err != nil {
+	if err := tx.Exec("DELETE FROM role_menu WHERE menu_id IN (?)", ids).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
-	if err := tx.Delete(menu).Error; err != nil {
+	if err := tx.Exec("DELETE FROM menu WHERE id IN (?)", ids).Error; err != nil {
 		tx.Rollback()
 		return err
 	}

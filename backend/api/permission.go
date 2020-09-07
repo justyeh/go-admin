@@ -42,12 +42,11 @@ func EditPermission(c *gin.Context) {
 		tools.ResponseBindError(c, err)
 		return
 	}
-
-	if permission.ID == permission.Pid {
-		tools.ResponseError(c, "参数不合法，pid不能等于id")
+	childIds := tools.GetChildIds("permission", permission.ID)
+	if tools.IsExistInStringSlice(childIds, permission.Pid) || permission.Pid == permission.ID {
+		tools.ResponseError(c, "参数不合法，pid不能为其本身或后代id")
 		return
 	}
-
 	if err := permission.Update(); err != nil {
 		tools.ResponseError(c, err.Error())
 		return
@@ -58,12 +57,11 @@ func EditPermission(c *gin.Context) {
 func DeletePermission(c *gin.Context) {
 	permission := models.Permission{ID: c.Param("id")}
 
-	if len(permission.ID) == 0 {
-		tools.ResponseError(c, "无效的权限ID")
-		return
-	}
+	childIds := tools.GetChildIds("permission", permission.ID)
+	ids := []string{permission.ID}
+	ids = append(ids, childIds...)
 
-	if err := permission.Delete(); err != nil {
+	if err := permission.Delete(ids); err != nil {
 		tools.ResponseError(c, err.Error())
 		return
 	}

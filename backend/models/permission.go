@@ -43,13 +43,13 @@ func (permission *Permission) Create() error {
 	return global.MYSQL.Create(permission).Error
 }
 
-func (permission *Permission) Delete() error {
+func (permission *Permission) Delete(ids []string) error {
 	tx := global.MYSQL.Begin()
-	if err := tx.Exec("DELETE FROM role_permission WHERE permission_id = ?", permission.ID).Error; err != nil {
+	if err := tx.Exec("DELETE FROM role_permission WHERE permission_id IN (?)", permission.ID).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
-	if err := tx.Delete(permission).Error; err != nil {
+	if err := tx.Exec("DELETE FROM permission WHERE id IN (?)", ids).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
