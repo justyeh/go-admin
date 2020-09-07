@@ -40,6 +40,10 @@ func GetMD5(data string) string {
 	return hex.EncodeToString(hash.Sum(nil))
 }
 
+// 同样的body数据做缓存处理
+var BodyData string
+var BodyMap map[string]string
+
 // 获取body数据
 func GetBodyData(c *gin.Context, key string) string {
 	data, err := c.GetRawData()
@@ -47,16 +51,25 @@ func GetBodyData(c *gin.Context, key string) string {
 	if err != nil {
 		return ""
 	}
+
 	m := make(map[string]string)
-	if err := json.Unmarshal(data, &m); err != nil {
-		return ""
+	if string(data) == BodyData {
+		m = BodyMap
+	} else {
+		if err := json.Unmarshal(data, &m); err != nil {
+			return ""
+		}
+		BodyData = string(data)
+		BodyMap = m
 	}
+
 	for k, v := range m {
 		if k == key {
 			return v
 		}
 	}
 	return ""
+
 }
 
 func GetChildIds(tableName string, pid string) []string {

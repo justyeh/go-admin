@@ -19,18 +19,15 @@ export default () => {
   const formRef = useRef()
 
   const handleSearch = (e) => {
-    history.push('/system/job?keyword=' + e)
+    doSearch(e, { current: 1, size: page.size })
   }
 
   const handlePageChange = (current, size, isReplace = false) => {
-    history[!!isReplace ? 'replace' : 'push'](
-      '/system/job?' +
-        qs.stringify({
-          keyword: keyword,
-          current: current,
-          size: size
-        })
-    )
+    doSearch(keyword, { current, size }, isReplace)
+  }
+
+  const doSearch = (keyword = '', page = { current: 1, size: 10 }, isReplace = false) => {
+    history[!!isReplace ? 'replace' : 'push']('/system/job?' + qs.stringify({ keyword, ...page }))
   }
 
   const getTableData = async () => {
@@ -56,7 +53,7 @@ export default () => {
           await delJob(id)
           notification.success({ message: '操作成功' })
           const current = tableData.length === 1 ? --page.current : page.current
-          handlePageChange(current, page.size, 1)
+          handlePageChange(current, page.size, true)
         } catch (error) {}
         setTableLoading(false)
       }

@@ -54,7 +54,7 @@ const DictionaryForm = ({ onSuccess }, ref) => {
     >
       <Form form={formIns} labelCol={{ span: 4 }} onFinish={handleSubmit}>
         <Form.Item name="label" label="字典标签" rules={[{ required: true }]}>
-          <Input />
+          <Input autoFocus />
         </Form.Item>
         <Form.Item
           name="value"

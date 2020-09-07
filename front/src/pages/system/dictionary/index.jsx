@@ -27,18 +27,15 @@ export default () => {
   const detailFormRef = useRef()
 
   const handleSearch = (e) => {
-    history.push('/system/dictionary?keyword=' + e)
+    doSearch(e, { current: 1, size: page.size })
   }
 
   const handlePageChange = (current, size, isReplace = false) => {
-    history[!!isReplace ? 'replace' : 'push'](
-      '/system/dictionary?' +
-        qs.stringify({
-          keyword: keyword,
-          current: current,
-          size: size
-        })
-    )
+    doSearch(keyword, { current, size }, isReplace)
+  }
+
+  const doSearch = (keyword = '', page = { current: 1, size: 10 }, isReplace = false) => {
+    history[!!isReplace ? 'replace' : 'push']('/system/dictionary?' + qs.stringify({ keyword, ...page }))
   }
 
   /* 获取字典列表 */

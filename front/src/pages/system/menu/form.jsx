@@ -61,11 +61,11 @@ const MenuForm = ({ menuData, onSuccess }, ref) => {
       onOk={formIns.submit}
     >
       <Form form={formIns} labelCol={{ span: 4 }} onFinish={handleSubmit}>
+        <Form.Item name="name" label="名称" rules={[{ required: true, message: '请填写菜单名称!' }]}>
+          <Input autoFocus />
+        </Form.Item>
         <Form.Item name="icon" label="图标">
           <Input placeholder="请输入对应的图标antd icon名称，例如：MenuOutlined" />
-        </Form.Item>
-        <Form.Item name="name" label="名称" rules={[{ required: true, message: '请填写菜单名称!' }]}>
-          <Input />
         </Form.Item>
         <Form.Item name="url" label="链接">
           <Input />
@@ -80,7 +80,7 @@ const MenuForm = ({ menuData, onSuccess }, ref) => {
           <Input.TextArea placeholder="格式：key=val，多个使用请使用#分割" />
         </Form.Item>
         <Form.Item name="pid" label="父级菜单" rules={[{ required: true, message: '请选择父级菜单!' }]}>
-          <TreeSelect treeData={convertAntdNodeData(treeData)} />
+          <TreeSelect treeData={convertAntdNodeData({ data: treeData, disabledKey: formData.id })} />
         </Form.Item>
       </Form>
     </Modal>

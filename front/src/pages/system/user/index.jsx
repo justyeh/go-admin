@@ -21,30 +21,51 @@ export default () => {
   const [tableLoading, setTableLoading] = useState(false)
   const formRef = useRef()
 
+  const [selectDeptId] = useState(getQueryVariable('deptId'))
+
   const [deptData, setDeptData] = useState([])
   const [jobData, setJobData] = useState([])
   const [roleData, setRoleData] = useState([])
   const [deptLoading, setDeptLoading] = useState(false)
 
   const handleSearch = (e) => {
-    history.push('/system/user?keyword=' + e)
+    doSearch(e, selectDeptId, { current: 1, size: page.size })
   }
 
   const handlePageChange = (current, size, isReplace = false) => {
-    history[!!isReplace ? 'replace' : 'push'](
-      '/system/user?' +
-        qs.stringify({
-          keyword: keyword,
-          current: current,
-          size: size
-        })
+    doSearch(keyword, selectDeptId, { current, size }, isReplace)
+  }
+
+  const handleDeptSlected = (selectedKeys) => {
+    doSearch(keyword, selectedKeys[0], { current: 1, size: page.size }, true)
+  }
+
+  const doSearch = (keyword = '', deptId = '', page = { current: 1, size: 10 }, isReplace = false) => {
+    setCache()
+    history[!!isReplace ? 'replace' : 'push']('/system/user?' + qs.stringify({ keyword, deptId, ...page }))
+  }
+
+  const setCache = () => {
+    sessionStorage.setItem(
+      'RelyDataCache',
+      JSON.stringify({
+        exp: Date.now() + 1000 * 5, // 数据缓存5s
+        deptData,
+        jobData,
+        roleData
+      })
     )
   }
 
   const getTableData = async () => {
     setTableLoading(true)
     try {
-      const { list = [], total = 0 } = await userList({ keyword, current: page.current, size: page.size })
+      const { list = [], total = 0 } = await userList({
+        keyword,
+        current: page.current,
+        size: page.size,
+        deptId: selectDeptId
+      })
       setTableData(list)
       setPage((val) => ({ ...val, total: total }))
     } catch (error) {}
@@ -73,21 +94,12 @@ export default () => {
         jobList(),
         roleList()
       ])
-      deptData = convertAntdNodeData(deptData)
-      jobData = convertAntdNodeData(jobData)
-      roleData = convertAntdNodeData(roleData)
+      deptData = convertAntdNodeData({ data: deptData })
+      jobData = convertAntdNodeData({ data: jobData })
+      roleData = convertAntdNodeData({ data: roleData })
       setDeptData(deptData)
       setJobData(jobData)
       setRoleData(roleData)
-      sessionStorage.setItem(
-        'RelyDataCache',
-        JSON.stringify({
-          exp: Date.now() + 1000 * 5, // 数据缓存5s
-          deptData,
-          jobData,
-          roleData
-        })
-      )
     } catch (error) {}
     setDeptLoading(false)
   }
@@ -105,7 +117,7 @@ export default () => {
           await delUser(id)
           notification.success({ message: '操作成功' })
           const current = tableData.length === 1 ? --page.current : page.current
-          handlePageChange(current, page.size, 1)
+          handlePageChange(current, page.size, true)
         } catch (error) {}
         setTableLoading(false)
       }
@@ -138,7 +150,14 @@ export default () => {
           <Spin spinning={deptLoading}>
             <div style={{ minHeight: 200 }}>
               {deptData.length > 0 && (
-                <Tree defaultExpandAll selectable switcherIcon={<DownOutlined />} treeData={deptData} />
+                <Tree
+                  defaultExpandAll
+                  selectable
+                  switcherIcon={<DownOutlined />}
+                  treeData={deptData}
+                  defaultSelectedKeys={[selectDeptId]}
+                  onSelect={handleDeptSlected}
+                />
               )}
             </div>
           </Spin>

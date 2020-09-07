@@ -42,6 +42,22 @@ export function updateRoleStatus(data) {
   return request.put('/api/system/role/updateRoleStatus', data)
 }
 
+export function roleMenuList(roleId) {
+  return request.get(`/api/system/role/menu/${roleId}`)
+}
+
+export function rolePermissionList(roleId) {
+  return request.get(`/api/system/role/permission/${roleId}`)
+}
+
+export function updateRoleMenu(data) {
+  return request.post(`/api/system/role/menu`, data)
+}
+
+export function updateRolePermission(data) {
+  return request.post(`/api/system/role/permission`, data)
+}
+
 /* 菜单 */
 export function menuTree(params) {
   return request.get('/api/system/menu/tree', { params })

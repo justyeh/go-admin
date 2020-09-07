@@ -23,9 +23,9 @@ func (dept *Dept) DeptTree() ([]Dept, error) {
 	list := []Dept{}
 	var err error
 	if len(dept.Name) == 0 {
-		err = global.MYSQL.Order("sort DESC").Order("create_at").Find(&list).Error
+		err = global.MYSQL.Order("sort ASC").Order("create_at").Find(&list).Error
 	} else {
-		err = global.MYSQL.Where("name LIKE ?", "%"+dept.Name+"%").Order("sort DESC").Order("create_at").Find(&list).Error
+		err = global.MYSQL.Where("name LIKE ?", "%"+dept.Name+"%").Order("sort ASC").Order("create_at").Find(&list).Error
 	}
 	return list, err
 }
@@ -49,7 +49,7 @@ func (dept *Dept) Delete() error {
 		return err
 	}
 	if count > 0 {
-		return errors.New("删除失败，该部门存在关联用户")
+		return errors.New("删除失败，该部门及其子部门存在关联用户")
 	}
 	return global.MYSQL.Delete(dept).Error
 }

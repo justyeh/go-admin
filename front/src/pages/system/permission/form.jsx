@@ -59,7 +59,7 @@ const PermissionForm = ({ permissionData, onSuccess }, ref) => {
     >
       <Form form={formIns} labelCol={{ span: 4 }} onFinish={handleSubmit}>
         <Form.Item name="name" label="名称" rules={[{ required: true, message: '请填写权限名称!' }]}>
-          <Input />
+          <Input autoFocus />
         </Form.Item>
         <Form.Item
           name="code"
@@ -75,7 +75,7 @@ const PermissionForm = ({ permissionData, onSuccess }, ref) => {
           <InputNumber style={{ width: '100%' }} />
         </Form.Item>
         <Form.Item name="pid" label="父级权限" rules={[{ required: true, message: '请选择父级权限!' }]}>
-          <TreeSelect treeData={convertAntdNodeData(treeData)} />
+          <TreeSelect treeData={convertAntdNodeData({ data: treeData, disabledKey: formData.id })} />
         </Form.Item>
       </Form>
     </Modal>

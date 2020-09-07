@@ -53,7 +53,7 @@ const RoleForm = ({ onSuccess }, ref) => {
     >
       <Form form={formIns} labelCol={{ span: 4 }} onFinish={handleSubmit}>
         <Form.Item name="name" label="名称" rules={[{ required: true, message: '请填写角色名称!' }]}>
-          <Input />
+          <Input autoFocus />
         </Form.Item>
         <Form.Item name="status" label="状态" valuePropName="checked">
           <Switch checkedChildren="启用" unCheckedChildren="停用" />

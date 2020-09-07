@@ -9,13 +9,16 @@ import (
 
 func UserList(c *gin.Context) {
 	user := models.User{Account: c.Query("keyword"), Nickname: c.Query("keyword")}
-	list, err := user.UserList()
+	page := tools.NewPagination(c)
+
+	list, total, err := user.UserList(page)
 	if err != nil {
 		tools.ResponseError(c, err.Error())
 		return
 	}
 	tools.ResponseSuccess(c, gin.H{
-		"list": list,
+		"list":  list,
+		"total": total,
 	})
 }
 
