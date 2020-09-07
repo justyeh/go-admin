@@ -1,6 +1,7 @@
 package tools
 
 import (
+	"backend/global"
 	"bytes"
 	"crypto/md5"
 	"encoding/hex"
@@ -56,4 +57,22 @@ func GetBodyData(c *gin.Context, key string) string {
 		}
 	}
 	return ""
+}
+
+func GetChildIds(tableName string, pid string) []string {
+	result := []string{}
+	recursionSelect(tableName, []string{pid}, &result)
+	return result
+}
+
+func recursionSelect(tableName string, pIds []string, result *[]string) {
+	for _, val := range pIds {
+		ids := []string{}
+		if err := global.MYSQL.Exec("SELECT id FROM ? WHERE pid = ", tableName, val).Scan(&ids).Error; err != nil {
+			break
+		} else {
+			*result = append(*result, ids...)
+			recursionSelect(tableName, ids, result)
+		}
+	}
 }
