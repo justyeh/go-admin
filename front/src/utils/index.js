@@ -87,10 +87,27 @@ export function convertAntdNodeData({
 }
 
 // 方法作用：设置Tree选中时，处理好选中与半选中的关系
-
 export function formatTreeChechkedRelation(sourceTree = [], checkedKeys = []) {
-  return {
-    fullChecked: [],
-    halfChecked: []
+  const fullChecked = []
+  const halfChecked = []
+
+  const traversal = function (list) {
+    list.forEach((item) => {
+      const hasLeaf = item.children && item.children.length > 0
+      if (checkedKeys.includes(item.key)) {
+        let isFullChecked = false
+        if (hasLeaf) {
+          isFullChecked = item.children.filter((subItem) => checkedKeys.includes(subItem.key)).length === item.children.length
+        } else {
+          isFullChecked = true
+        }
+        isFullChecked ? fullChecked.push(item.key) : halfChecked.push(item.key)
+      }
+      if (hasLeaf) {
+        traversal(item.children)
+      }
+    })
   }
+  traversal(sourceTree)
+  return { fullChecked, halfChecked }
 }

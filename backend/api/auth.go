@@ -115,7 +115,6 @@ func createUserToken(uc UserClaims) (string, error) {
 	/* token := jwt.New(jwt.SigningMethodHS256)
 	token.Claims = claims
 	res, err := token.SignedString(j.SigningKey)
-	fmt.Println("err:", err)
 	return res, err */
 
 	return "", nil

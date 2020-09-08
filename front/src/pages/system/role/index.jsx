@@ -141,23 +141,13 @@ export default () => {
     setRelyLoading(true)
     setSelectedRowKeys(keys)
     try {
-      const [{ list: menuList = [] }, { list: permissionList = [] }] = await Promise.all([
+      const [{ ids: menuIds = [] }, { ids: permissionIds = [] }] = await Promise.all([
         roleMenuList(keys[0]),
         rolePermissionList(keys[0])
       ])
 
-      setCheckedMenuKeys(
-        formatTreeChechkedRelation(
-          menuData,
-          menuList.map((item) => item.id)
-        )
-      )
-      setCheckedPermissionKeys(
-        formatTreeChechkedRelation(
-          permissionData,
-          permissionList.map((item) => item.id)
-        )
-      )
+      setCheckedMenuKeys(formatTreeChechkedRelation(menuData, menuIds))
+      setCheckedPermissionKeys(formatTreeChechkedRelation(permissionData, permissionIds))
     } catch (error) {}
     setRelyLoading(false)
   }
@@ -166,7 +156,7 @@ export default () => {
   const handleSaveMenuAndPermission = async () => {
     setRelyLoading(true)
     try {
-      Promise.all([
+      await Promise.all([
         updateRoleMenu({
           roleId: selectedRowKeys[0],
           menuIds: [...checkedMenuKeys.fullChecked, ...checkedMenuKeys.halfChecked]
@@ -176,8 +166,9 @@ export default () => {
           permissionIds: [...checkedPermissionKeys.fullChecked, ...checkedPermissionKeys.halfChecked]
         })
       ])
+      notification.success({ message: '保存成功' })
     } catch (error) {}
-    setRelyLoading(true)
+    setRelyLoading(false)
   }
 
   // 处理Tree选中事件
@@ -188,7 +179,6 @@ export default () => {
     if (target === 'permission') {
       setCheckedPermissionKeys({ fullChecked: checkedKeys, halfChecked: evt.halfCheckedKeys })
     }
-    console.log(checkedKeys, evt)
   }
 
   useMount(() => {

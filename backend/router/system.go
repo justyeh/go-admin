@@ -12,7 +12,7 @@ func RegisterSystemRouter(router *gin.RouterGroup) {
 		user.GET("/list", api.UserList)
 		user.POST("/", api.AddUser)
 		user.PUT("/", api.EditUser)
-		user.PUT("/updateUserStatus", api.UpdateUserStatus)
+		user.POST("/updateUserStatus", api.UpdateUserStatus)
 		user.DELETE("/:id", api.DeleteUser)
 	}
 
@@ -37,13 +37,13 @@ func RegisterSystemRouter(router *gin.RouterGroup) {
 		role.GET("/list", api.RoleList)
 		role.POST("/", api.AddRole)
 		role.PUT("/", api.EditRole)
-		role.PUT("/updateRoleStatus", api.UpdateRoleStatus)
+		role.POST("/updateRoleStatus", api.UpdateRoleStatus)
 		role.DELETE("/:id", api.DeleteRole)
 
-		role.GET("/list/menu/:roleId", api.RoleMenuList)
-		role.GET("/list/permission/:roleId", api.RolePermissionList)
-		role.POST("/list/menu", api.UpdateRoleMenu)
-		role.POST("/list/permission", api.UpdateRolePermission)
+		role.GET("/menu/:roleId", api.RoleMenuIds)
+		role.GET("/permission/:roleId", api.RolePermissionIds)
+		role.POST("/menu", api.UpdateRoleMenu)
+		role.POST("/permission", api.UpdateRolePermission)
 	}
 
 	dept := router.Group("/system/dept")

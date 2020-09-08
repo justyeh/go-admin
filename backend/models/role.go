@@ -4,6 +4,7 @@ import (
 	"backend/global"
 	"backend/tools"
 	"errors"
+	"fmt"
 )
 
 type Role struct {
@@ -13,6 +14,16 @@ type Role struct {
 	Remark   string `json:"remark"`
 	CreateAt int64  `json:"createAt"`
 	UpdateAt int64  `json:"updateAt"`
+}
+
+type RoleMenu struct {
+	RoleId  string   `json:"roleId" binding:"required"`
+	MenuIds []string `json:"menuIds" binding:"required"`
+}
+
+type RolePermission struct {
+	RoleId        string   `json:"roleId" binding:"required"`
+	PermissionIds []string `json:"permissionIds" binding:"required"`
 }
 
 func (role *Role) TableName() string {
@@ -94,26 +105,66 @@ func (role *Role) Update() error {
 	}).Error
 }
 
-func (role *Role) RoleMenuList() ([]Menu, error) {
+func (role *Role) RoleMenuIds() ([]string, error) {
 	list := []Menu{}
-	err := global.MYSQL.Raw("SELECT menu.id FROM menu,role_menu WHERE role_menu.role_id = ?", role.ID).Scan(&list).Error
-	return list, err
+	result := []string{}
+	err := global.MYSQL.Raw("SELECT menu_id as id FROM role_menu WHERE role_id = ?", role.ID).Scan(&list).Error
+	for _, val := range list {
+		result = append(result, val.ID)
+	}
+	return result, err
 }
 
-func (role *Role) RolePermisssionList() ([]Permission, error) {
+func (role *Role) RolePermissionIds() ([]string, error) {
 	list := []Permission{}
-	err := global.MYSQL.Raw("SELECT permission.id FROM permission,role_permission WHERE role_permission.role_id = ?", role.ID).Scan(&list).Error
-	return list, err
+	result := []string{}
+	err := global.MYSQL.Raw("SELECT permission_id as id FROM role_permission WHERE role_id = ?", role.ID).Scan(&list).Error
+	for _, val := range list {
+		result = append(result, val.ID)
+	}
+	return result, err
 }
 
-func (role *Role) UpdateRoleMenu() ([]Menu, error) {
-	list := []Menu{}
-	err := global.MYSQL.Raw("SELECT menu.id FROM menu,role_menu WHERE role_menu.role_id = ?", role.ID).Scan(&list).Error
-	return list, err
+func (roleMenu *RoleMenu) UpdateRoleMenu() error {
+	tx := global.MYSQL.Begin()
+	if err := tx.Exec("DELETE FROM role_menu WHERE role_id = ?", roleMenu.RoleId).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	sql := "INSERT INTO role_menu (id,role_id,menu_id) VALUES "
+	for index, menuId := range roleMenu.MenuIds {
+		if index == len(roleMenu.MenuIds)-1 {
+			sql += fmt.Sprintf("('%s','%s','%s');", tools.UUID(), roleMenu.RoleId, menuId)
+		} else {
+			sql += fmt.Sprintf("('%s','%s','%s'),", tools.UUID(), roleMenu.RoleId, menuId)
+		}
+	}
+	if err := tx.Exec(sql).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	tx.Commit()
+	return nil
 }
 
-func (role *Role) UpdateRolePermisssion() ([]Permission, error) {
-	list := []Permission{}
-	err := global.MYSQL.Raw("SELECT permission.id FROM permission,role_permission WHERE role_permission.role_id = ?", role.ID).Scan(&list).Error
-	return list, err
+func (rolePermission *RolePermission) UpdateRolePermission() error {
+	tx := global.MYSQL.Begin()
+	if err := tx.Exec("DELETE FROM role_permission WHERE role_id = ?", rolePermission.RoleId).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	sql := "INSERT INTO role_permission (id,role_id,permission_id) VALUES "
+	for index, menuId := range rolePermission.PermissionIds {
+		if index == len(rolePermission.PermissionIds)-1 {
+			sql += fmt.Sprintf("('%s','%s','%s');", tools.UUID(), rolePermission.RoleId, menuId)
+		} else {
+			sql += fmt.Sprintf("('%s','%s','%s'),", tools.UUID(), rolePermission.RoleId, menuId)
+		}
+	}
+	if err := tx.Exec(sql).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	tx.Commit()
+	return nil
 }

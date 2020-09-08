@@ -18,7 +18,7 @@ export function editUser(data) {
 }
 
 export function updateUserStatus(data) {
-  return request.put('/api/system/user/updateUserStatus', data)
+  return request.post('/api/system/user/updateUserStatus', data)
 }
 
 /* 权限 */
@@ -39,7 +39,7 @@ export function editRole(data) {
 }
 
 export function updateRoleStatus(data) {
-  return request.put('/api/system/role/updateRoleStatus', data)
+  return request.post('/api/system/role/updateRoleStatus', data)
 }
 
 export function roleMenuList(roleId) {
