@@ -74,7 +74,6 @@ func DeleteMenu(c *gin.Context) {
 
 func menuSliceToTree(source []models.Menu) []models.Menu {
 	result := []models.Menu{}
-
 	// 获取id集合
 	ids := []interface{}{}
 	for _, item := range source {

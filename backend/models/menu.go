@@ -25,12 +25,11 @@ func (menu *Menu) TableName() string {
 
 func (menu *Menu) MenuTree() ([]Menu, error) {
 	list := []Menu{}
-	var err error
-	if len(menu.Name) == 0 {
-		err = global.MYSQL.Order("sort ASC").Order("create_at").Find(&list).Error
-	} else {
-		err = global.MYSQL.Where("name LIKE ?", "%"+menu.Name+"%").Order("sort ASC").Order("create_at").Find(&list).Error
+	db := global.MYSQL
+	if len(menu.Name) > 0 {
+		db = db.Where("name LIKE ?", "%"+menu.Name+"%")
 	}
+	err := db.Order("sort ASC").Order("create_at DESC").Find(&list).Error
 	return list, err
 }
 
@@ -69,14 +68,5 @@ func (menu *Menu) Update() error {
 	if count > 0 {
 		return errors.New("修改失败，该菜单名称已被占用")
 	}
-	return global.MYSQL.Model(&menu).Updates(map[string]interface{}{
-		"name":      menu.Name,
-		"icon":      menu.Icon,
-		"url":       menu.Url,
-		"component": menu.Component,
-		"metaData":  menu.Component,
-		"pid":       menu.Pid,
-		"sort":      menu.Sort,
-		"update_at": menu.UpdateAt,
-	}).Error
+	return global.MYSQL.Omit("create_at").Save(menu).Error
 }

@@ -21,12 +21,11 @@ func (dept *Dept) TableName() string {
 
 func (dept *Dept) DeptTree() ([]Dept, error) {
 	list := []Dept{}
-	var err error
-	if len(dept.Name) == 0 {
-		err = global.MYSQL.Order("sort ASC").Order("create_at").Find(&list).Error
-	} else {
-		err = global.MYSQL.Where("name LIKE ?", "%"+dept.Name+"%").Order("sort ASC").Order("create_at").Find(&list).Error
+	db := global.MYSQL
+	if len(dept.Name) > 0 {
+		db = db.Where("name LIKE ?", "%"+dept.Name+"%")
 	}
+	err := db.Order("sort ASC").Order("create_at DESC").Find(&list).Error
 	return list, err
 }
 
@@ -63,10 +62,5 @@ func (dept *Dept) Update() error {
 	if count > 0 {
 		return errors.New("修改失败，该部门名称已被占用")
 	}
-	return global.MYSQL.Model(&dept).Updates(map[string]interface{}{
-		"name":      dept.Name,
-		"pid":       dept.Pid,
-		"sort":      dept.Sort,
-		"update_at": dept.UpdateAt,
-	}).Error
+	return global.MYSQL.Omit("create_at").Save(dept).Error
 }

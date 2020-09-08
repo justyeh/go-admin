@@ -16,6 +16,12 @@ type Role struct {
 	UpdateAt int64  `json:"updateAt"`
 }
 
+type RoleStatus struct {
+	ID       string `json:"id" binding:"required"`
+	Status   string `json:"status" binding:"required,oneof=active ban"`
+	UpdateAt int64  `json:"updateAt"`
+}
+
 type RoleMenu struct {
 	RoleId  string   `json:"roleId" binding:"required"`
 	MenuIds []string `json:"menuIds" binding:"required"`
@@ -81,11 +87,8 @@ func (role *Role) Delete() error {
 	return nil
 }
 
-func (role *Role) UpdateStatus() error {
-	return global.MYSQL.Model(&role).Updates(map[string]interface{}{
-		"status":    role.Status,
-		"update_at": role.UpdateAt,
-	}).Error
+func (rs *RoleStatus) UpdateStatus() error {
+	return global.MYSQL.Save(rs).Error
 }
 
 func (role *Role) Update() error {
@@ -97,29 +100,24 @@ func (role *Role) Update() error {
 	if count > 0 {
 		return errors.New("修改失败，该角色名称已被占用")
 	}
-	return global.MYSQL.Model(&role).Updates(map[string]interface{}{
-		"name":      role.Name,
-		"status":    role.Status,
-		"remark":    role.Remark,
-		"update_at": role.UpdateAt,
-	}).Error
+	return global.MYSQL.Omit("create_at").Save(role).Error
 }
 
 func (role *Role) RoleMenuIds() ([]string, error) {
-	list := []Menu{}
+	menuList := []Menu{}
 	result := []string{}
-	err := global.MYSQL.Raw("SELECT menu_id as id FROM role_menu WHERE role_id = ?", role.ID).Scan(&list).Error
-	for _, val := range list {
+	err := global.MYSQL.Raw("SELECT menu_id as id FROM role_menu WHERE role_id = ?", role.ID).Scan(&menuList).Error
+	for _, val := range menuList {
 		result = append(result, val.ID)
 	}
 	return result, err
 }
 
 func (role *Role) RolePermissionIds() ([]string, error) {
-	list := []Permission{}
+	permissionList := []Permission{}
 	result := []string{}
-	err := global.MYSQL.Raw("SELECT permission_id as id FROM role_permission WHERE role_id = ?", role.ID).Scan(&list).Error
-	for _, val := range list {
+	err := global.MYSQL.Raw("SELECT permission_id as id FROM role_permission WHERE role_id = ?", role.ID).Scan(&permissionList).Error
+	for _, val := range permissionList {
 		result = append(result, val.ID)
 	}
 	return result, err

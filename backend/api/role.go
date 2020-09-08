@@ -51,19 +51,12 @@ func EditRole(c *gin.Context) {
 }
 
 func UpdateRoleStatus(c *gin.Context) {
-	role := models.Role{Name: "temp", UpdateAt: tools.GetUnixNow()}
-
-	if err := c.ShouldBind(&role); err != nil {
+	roleStatus := models.RoleStatus{UpdateAt: tools.GetUnixNow()}
+	if err := c.ShouldBind(&roleStatus); err != nil {
 		tools.ResponseBindError(c, err)
 		return
 	}
-
-	if len(role.ID) == 0 {
-		tools.ResponseError(c, "无效的角色ID")
-		return
-	}
-
-	if err := role.UpdateStatus(); err != nil {
+	if err := roleStatus.UpdateStatus(); err != nil {
 		tools.ResponseError(c, err.Error())
 		return
 	}

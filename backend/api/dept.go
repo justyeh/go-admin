@@ -3,6 +3,7 @@ package api
 import (
 	"backend/models"
 	"backend/tools"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 )
@@ -73,7 +74,7 @@ func DeleteDept(c *gin.Context) {
 	tools.ResponseSuccess(c, gin.H{"message": "删除成功"})
 }
 
-func deptSliceToTree(source []models.Dept) []models.Dept {
+func deptSliceToTree(deptList []models.Dept) []models.Dept {
 	result := []models.Dept{}
 
 	// 获取id集合
@@ -84,36 +85,36 @@ func deptSliceToTree(source []models.Dept) []models.Dept {
 
 	// 遍历，找到所有根节点
 	sourceCopy := make([]models.Dept, len(source))
-	copy(sourceCopy, source)
-
 	for index, item := range sourceCopy {
 		if !tools.IsExistInSlice(ids, item.Pid) {
 			resultLen := len(result)
 			source = append(source[:index-resultLen], source[index-resultLen+1:]...)
-
 			result = append(result, item)
 		}
 	}
 
+	fmt.Println(result)
+
 	// 遍历，处理所有子节点
-	for _, item := range source {
-		handleDeptChildNode(&result, item)
-	}
+	handleDeptChildNode(&result, source)
 
 	return result
 }
 
-func handleDeptChildNode(list *[]models.Dept, m models.Dept) {
-	for index, item := range *list {
-		if item.ID == m.Pid {
-			(*list)[index].Children = append(item.Children, m)
-			goto END
-		}
+func handleDeptChildNode(resultTree *[]models.Dept, waitHandleNodes []) {
+	/* for len(*list) > 0 {
+		for index, item := range *list {
+			if item.ID == m.Pid {
+				(*list)[index].Children = append(item.Children, m)
+				*list = append((*list)[:index], (*list)[index+1:]...)
+				goto END_THIS
+			}
 
-		if len(item.Children) > 0 {
-			handleDeptChildNode(&(*list)[index].Children, m)
+			if len(item.Children) > 0 {
+				handleDeptChildNode(&(*list)[index].Children, m)
+			}
 		}
+	END_THIS:
 	}
-END:
-	return
+	return */
 }

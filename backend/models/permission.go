@@ -22,12 +22,11 @@ func (permission *Permission) TableName() string {
 
 func (permission *Permission) PermissionTree() ([]Permission, error) {
 	list := []Permission{}
-	var err error
-	if len(permission.Name) == 0 {
-		err = global.MYSQL.Order("sort ASC").Order("create_at").Find(&list).Error
-	} else {
-		err = global.MYSQL.Where("name LIKE ?", "%"+permission.Name+"%").Order("sort ASC").Order("create_at").Find(&list).Error
+	db := global.MYSQL
+	if len(permission.Name) > 0 {
+		db = db.Where("name LIKE ?", "%"+permission.Name+"%")
 	}
+	err := db.Order("sort ASC").Order("create_at DESC").Find(&list).Error
 	return list, err
 }
 
@@ -66,11 +65,5 @@ func (permission *Permission) Update() error {
 	if count > 0 {
 		return errors.New("修改失败，该权限CODE已被占用")
 	}
-	return global.MYSQL.Model(&permission).Updates(map[string]interface{}{
-		"code":      permission.Code,
-		"name":      permission.Name,
-		"pid":       permission.Pid,
-		"sort":      permission.Sort,
-		"update_at": permission.UpdateAt,
-	}).Error
+	return global.MYSQL.Omit("create_at").Save(permission).Error
 }

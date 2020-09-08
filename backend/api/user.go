@@ -8,9 +8,8 @@ import (
 )
 
 func UserList(c *gin.Context) {
-	user := models.User{Account: c.Query("keyword"), Nickname: c.Query("keyword")}
+	user := models.ViewUser{User: models.User{Account: c.Query("keyword"), Nickname: c.Query("keyword")}, DeptId: c.Query("deptId")}
 	page := tools.NewPagination(c)
-
 	list, total, err := user.UserList(page)
 	if err != nil {
 		tools.ResponseError(c, err.Error())
@@ -24,16 +23,13 @@ func UserList(c *gin.Context) {
 
 func AddUser(c *gin.Context) {
 	now := tools.GetUnixNow()
-	user := models.User{CreateAt: now, UpdateAt: now}
-
+	user := models.SystemUser{User: models.User{CreateAt: now, UpdateAt: now}}
 	if err := c.ShouldBind(&user); err != nil {
 		tools.ResponseBindError(c, err)
 		return
 	}
-
 	user.ID = tools.UUID()
 	user.Password = tools.GetMD5("123456")
-
 	if err := user.Create(); err != nil {
 		tools.ResponseError(c, err.Error())
 		return
@@ -42,13 +38,11 @@ func AddUser(c *gin.Context) {
 }
 
 func EditUser(c *gin.Context) {
-	user := models.User{UpdateAt: tools.GetUnixNow()}
-
+	user := models.SystemUser{User: models.User{UpdateAt: tools.GetUnixNow()}}
 	if err := c.ShouldBind(&user); err != nil {
 		tools.ResponseBindError(c, err)
 		return
 	}
-
 	if err := user.Update(); err != nil {
 		tools.ResponseError(c, err.Error())
 		return
@@ -57,14 +51,12 @@ func EditUser(c *gin.Context) {
 }
 
 func UpdateUserStatus(c *gin.Context) {
-	user := models.User{ID: tools.GetBodyData(c, "id"), Status: tools.GetBodyData(c, "status"), UpdateAt: tools.GetUnixNow()}
-
-	if len(user.ID) == 0 || len(user.Status) == 0 {
-		tools.ResponseError(c, "参数错误，缺失id/status")
+	userStatus := models.UserStatus{UpdateAt: tools.GetUnixNow()}
+	if err := c.ShouldBind(&userStatus); err != nil {
+		tools.ResponseBindError(c, err)
 		return
 	}
-
-	if err := user.UpdateStatus(); err != nil {
+	if err := userStatus.UpdateStatus(); err != nil {
 		tools.ResponseError(c, err.Error())
 		return
 	}
@@ -73,21 +65,17 @@ func UpdateUserStatus(c *gin.Context) {
 
 func DeleteUser(c *gin.Context) {
 	user := models.User{ID: c.Param("id")}
-
 	if user.ID == "0" {
 		tools.ResponseError(c, "改用户无法删除")
 		return
 	}
-
 	if len(user.ID) == 0 {
 		tools.ResponseError(c, "无效的用户ID")
 		return
 	}
-
 	if err := user.Delete(); err != nil {
 		tools.ResponseError(c, err.Error())
 		return
 	}
-
 	tools.ResponseSuccess(c, gin.H{"message": "删除成功"})
 }

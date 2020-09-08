@@ -23,11 +23,11 @@ func (job *Job) JobList(page tools.Pagination) ([]Job, int, error) {
 	var total int
 	var err error
 
-	db := global.MYSQL
+	db := global.MYSQL.Table("job")
 	if len(job.Name) > 0 {
 		db = db.Where("name LIKE ?", "%"+job.Name+"%")
 	}
-	err = db.Table("job").Count(&total).Error
+	err = db.Count(&total).Error
 	if err != nil || total == 0 {
 		return list, total, err
 	}
@@ -68,9 +68,5 @@ func (job *Job) Update() error {
 	if count > 0 {
 		return errors.New("修改失败，该岗位名称已被占用")
 	}
-	return global.MYSQL.Model(&job).Updates(map[string]interface{}{
-		"name":      job.Name,
-		"sort":      job.Sort,
-		"update_at": job.UpdateAt,
-	}).Error
+	return global.MYSQL.Omit("create_at").Save(job).Error
 }

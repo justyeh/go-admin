@@ -37,11 +37,11 @@ func (dictionary *Dictionary) DictionaryList(page tools.Pagination) ([]Dictionar
 	var total int
 	var err error
 
-	db := global.MYSQL
+	db := global.MYSQL.Table("dictionary")
 	if len(dictionary.Name) > 0 {
 		db = db.Where("name LIKE ?", "%"+dictionary.Name+"%")
 	}
-	err = db.Table("dictionary").Count(&total).Error
+	err = db.Count(&total).Error
 	if err != nil || total == 0 {
 		return list, total, err
 	}
@@ -63,12 +63,10 @@ func (dictionary *Dictionary) Create() error {
 
 func (dictionary *Dictionary) Delete() error {
 	tx := global.MYSQL.Begin()
-
 	if err := tx.Exec("DELETE FROM dictionary_detail WHERE dictionary_id = ?", dictionary.ID).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
-
 	if err := global.MYSQL.Delete(dictionary).Error; err != nil {
 		tx.Rollback()
 		return err
@@ -86,22 +84,17 @@ func (dictionary *Dictionary) Update() error {
 	if count > 0 {
 		return errors.New("修改失败，该字典名称已被占用")
 	}
-	return global.MYSQL.Model(&dictionary).Updates(map[string]interface{}{
-		"name":      dictionary.Name,
-		"desc":      dictionary.Description,
-		"update_at": dictionary.UpdateAt,
-	}).Error
+	return global.MYSQL.Omit("create_at").Save(dictionary).Error
 }
 
 func (dictionaryDetail *DictionaryDetail) DictionaryDetailList() ([]DictionaryDetail, error) {
 	var list = []DictionaryDetail{}
-	err := global.MYSQL.Where("dictionary_id = ?", dictionaryDetail.DictionaryId).Find(&list).Error
+	err := global.MYSQL.Where("dictionary_id = ?", dictionaryDetail.DictionaryId).Order("sort ASC").Order("create_at DESC").Find(&list).Error
 	return list, err
 }
 
 func (dictionaryDetail *DictionaryDetail) Create() error {
 	var count int
-
 	parmas := []interface{}{dictionaryDetail.DictionaryId, dictionaryDetail.Label, dictionaryDetail.Value}
 	err := global.MYSQL.Table("dictionary_detail").Where("dictionary_id = ? And (label = ? or value = ?)", parmas...).Count(&count).Error
 	if err != nil {
@@ -127,11 +120,5 @@ func (dictionaryDetail *DictionaryDetail) Update() error {
 	if count > 0 {
 		return errors.New("修改失败，该字典标签/值已被占用")
 	}
-	return global.MYSQL.Model(&dictionaryDetail).Updates(map[string]interface{}{
-		"dictionary_id": dictionaryDetail.DictionaryId,
-		"label":         dictionaryDetail.Label,
-		"value":         dictionaryDetail.Value,
-		"sort":          dictionaryDetail.Sort,
-		"update_at":     dictionaryDetail.UpdateAt,
-	}).Error
+	return global.MYSQL.Omit("create_at").Save(dictionaryDetail).Error
 }
