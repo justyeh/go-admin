@@ -42,9 +42,9 @@ const UserForm = ({ rely, onSuccess }, ref) => {
       status: data.status === 'active',
       phone: data.phone || '',
       email: data.email || '',
-      jobId: data.job.id || '',
-      deptId: data.dept.id || '',
-      roleIds: data.roleList.map((item) => item.id)
+      jobId: data.jobId || '',
+      deptId: data.deptId || ''
+      // roleIds: data.roleList.map((item) => item.id)
     }
     setFormData(formData)
     formIns.resetFields()

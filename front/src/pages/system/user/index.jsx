@@ -180,7 +180,11 @@ export default () => {
             <Table.Column dataIndex="nickname" title="昵称" align="center" />
             <Table.Column dataIndex="phone" title="手机" align="center" />
             <Table.Column dataIndex="email" title="邮箱" align="center" />
-            <Table.Column title="部门/岗位" align="center" render={(row) => ({})} />
+            <Table.Column
+              title="部门/岗位"
+              align="center"
+              render={(row) => `${row.deptName || '--'}/${row.jobName || '--'}`}
+            />
             <Table.Column
               title="状态"
               align="center"
