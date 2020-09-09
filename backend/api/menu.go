@@ -72,46 +72,54 @@ func DeleteMenu(c *gin.Context) {
 	tools.ResponseSuccess(c, gin.H{"message": "删除成功"})
 }
 
-func menuSliceToTree(source []models.Menu) []models.Menu {
-	result := []models.Menu{}
+func menuSliceToTree(menuList []models.Menu) []models.Menu {
 	// 获取id集合
 	ids := []interface{}{}
-	for _, item := range source {
+	for _, item := range menuList {
 		ids = append(ids, item.ID)
 	}
 
-	// 遍历，找到所有根节点
-	sourceCopy := make([]models.Menu, len(source))
-	copy(sourceCopy, source)
-
-	for index, item := range sourceCopy {
+	// 遍历，找到所有根节点、后代节点
+	rootNodes := []models.Menu{}
+	childNodes := []models.Menu{}
+	for _, item := range menuList {
 		if !tools.IsExistInSlice(ids, item.Pid) {
-			resultLen := len(result)
-			source = append(source[:index-resultLen], source[index-resultLen+1:]...)
-
-			result = append(result, item)
+			rootNodes = append(rootNodes, item)
+		} else {
+			childNodes = append(childNodes, item)
 		}
 	}
 
-	// 遍历，处理所有子节点
-	for _, item := range source {
-		handleMenuChildNode(&result, item)
-	}
-
-	return result
+	handleMenuNodeRelation(&childNodes, &rootNodes)
+	return rootNodes
 }
 
-func handleMenuChildNode(list *[]models.Menu, m models.Menu) {
-	for index, item := range *list {
-		if item.ID == m.Pid {
-			(*list)[index].Children = append(item.Children, m)
-			goto END
+func handleMenuNodeRelation(childNodes, parentNodes *[]models.Menu) {
+	// 理论最多执行 n+n-1+n-2+...+1 次，即每次最后一个处理成功
+	maxExectionTimes := (1 + len(*childNodes)) * len(*childNodes) / 2
+	for len(*childNodes) > 0 && maxExectionTimes > 0 {
+		for cIndex, child := range *childNodes {
+			IS_MENU_INSERT_SUCCESS = false
+			menuRecursive(parentNodes, child)
+			if IS_MENU_INSERT_SUCCESS {
+				*childNodes = append((*childNodes)[:cIndex], (*childNodes)[cIndex+1:]...)
+				break
+			}
 		}
+		maxExectionTimes--
+	}
+}
 
-		if len(item.Children) > 0 {
-			handleMenuChildNode(&(*list)[index].Children, m)
+var IS_MENU_INSERT_SUCCESS = false
+
+func menuRecursive(list *[]models.Menu, target models.Menu) {
+	for index, item := range *list {
+		if item.ID == target.Pid {
+			(*list)[index].Children = append(item.Children, target)
+			IS_MENU_INSERT_SUCCESS = true
+			return
+		} else if len(item.Children) > 0 {
+			menuRecursive(&(*list)[index].Children, target)
 		}
 	}
-END:
-	return
 }

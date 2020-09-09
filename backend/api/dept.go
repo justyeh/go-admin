@@ -3,7 +3,6 @@ package api
 import (
 	"backend/models"
 	"backend/tools"
-	"fmt"
 
 	"github.com/gin-gonic/gin"
 )
@@ -75,46 +74,53 @@ func DeleteDept(c *gin.Context) {
 }
 
 func deptSliceToTree(deptList []models.Dept) []models.Dept {
-	result := []models.Dept{}
-
 	// 获取id集合
 	ids := []interface{}{}
-	for _, item := range source {
+	for _, item := range deptList {
 		ids = append(ids, item.ID)
 	}
 
-	// 遍历，找到所有根节点
-	sourceCopy := make([]models.Dept, len(source))
-	for index, item := range sourceCopy {
+	// 遍历，找到所有根节点、后代节点
+	rootNodes := []models.Dept{}
+	childNodes := []models.Dept{}
+	for _, item := range deptList {
 		if !tools.IsExistInSlice(ids, item.Pid) {
-			resultLen := len(result)
-			source = append(source[:index-resultLen], source[index-resultLen+1:]...)
-			result = append(result, item)
+			rootNodes = append(rootNodes, item)
+		} else {
+			childNodes = append(childNodes, item)
 		}
 	}
 
-	fmt.Println(result)
-
-	// 遍历，处理所有子节点
-	handleDeptChildNode(&result, source)
-
-	return result
+	handleDeptNodeRelation(&childNodes, &rootNodes)
+	return rootNodes
 }
 
-func handleDeptChildNode(resultTree *[]models.Dept, waitHandleNodes []) {
-	/* for len(*list) > 0 {
-		for index, item := range *list {
-			if item.ID == m.Pid {
-				(*list)[index].Children = append(item.Children, m)
-				*list = append((*list)[:index], (*list)[index+1:]...)
-				goto END_THIS
-			}
-
-			if len(item.Children) > 0 {
-				handleDeptChildNode(&(*list)[index].Children, m)
+func handleDeptNodeRelation(childNodes, parentNodes *[]models.Dept) {
+	// 理论最多执行 n+n-1+n-2+...+1 次，即每次最后一个处理成功
+	maxExectionTimes := (1 + len(*childNodes)) * len(*childNodes) / 2
+	for len(*childNodes) > 0 && maxExectionTimes > 0 {
+		for cIndex, child := range *childNodes {
+			IS_DEPT_INSERT_SUCCESS = false
+			deptRecursive(parentNodes, child)
+			if IS_DEPT_INSERT_SUCCESS {
+				*childNodes = append((*childNodes)[:cIndex], (*childNodes)[cIndex+1:]...)
+				break
 			}
 		}
-	END_THIS:
+		maxExectionTimes--
 	}
-	return */
+}
+
+var IS_DEPT_INSERT_SUCCESS = false
+
+func deptRecursive(list *[]models.Dept, target models.Dept) {
+	for index, item := range *list {
+		if item.ID == target.Pid {
+			(*list)[index].Children = append(item.Children, target)
+			IS_DEPT_INSERT_SUCCESS = true
+			return
+		} else if len(item.Children) > 0 {
+			deptRecursive(&(*list)[index].Children, target)
+		}
+	}
 }

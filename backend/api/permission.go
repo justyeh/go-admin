@@ -69,47 +69,55 @@ func DeletePermission(c *gin.Context) {
 	tools.ResponseSuccess(c, gin.H{"message": "删除成功"})
 }
 
-func permissionSliceToTree(source []models.Permission) []models.Permission {
-	result := []models.Permission{}
-
+func permissionSliceToTree(permissionList []models.Permission) []models.Permission {
 	// 获取id集合
 	ids := []interface{}{}
-	for _, item := range source {
+	for _, item := range permissionList {
 		ids = append(ids, item.ID)
 	}
 
-	// 遍历，找到所有根节点
-	sourceCopy := make([]models.Permission, len(source))
-	copy(sourceCopy, source)
-
-	for index, item := range sourceCopy {
+	// 遍历，找到所有根节点、后代节点
+	rootNodes := []models.Permission{}
+	childNodes := []models.Permission{}
+	for _, item := range permissionList {
 		if !tools.IsExistInSlice(ids, item.Pid) {
-			resultLen := len(result)
-			source = append(source[:index-resultLen], source[index-resultLen+1:]...)
-
-			result = append(result, item)
+			rootNodes = append(rootNodes, item)
+		} else {
+			childNodes = append(childNodes, item)
 		}
 	}
 
-	// 遍历，处理所有子节点
-	for _, item := range source {
-		handlePermissionChildNode(&result, item)
-	}
-
-	return result
+	handlePermissionNodeRelation(&childNodes, &rootNodes)
+	return rootNodes
 }
 
-func handlePermissionChildNode(list *[]models.Permission, m models.Permission) {
-	for index, item := range *list {
-		if item.ID == m.Pid {
-			(*list)[index].Children = append(item.Children, m)
-			goto END
-		}
+func handlePermissionNodeRelation(childNodes, parentNodes *[]models.Permission) {
+	// 理论最多执行 n+n-1+n-2+...+1 次，即每次最后一个处理成功
+	maxExectionTimes := (1 + len(*childNodes)) * len(*childNodes) / 2
 
-		if len(item.Children) > 0 {
-			handlePermissionChildNode(&(*list)[index].Children, m)
+	for len(*childNodes) > 0 && maxExectionTimes > 0 {
+		for cIndex, child := range *childNodes {
+			IS_PERMISSION_INSERT_SUCCESS = false
+			permissionRecursive(parentNodes, child)
+			if IS_PERMISSION_INSERT_SUCCESS {
+				*childNodes = append((*childNodes)[:cIndex], (*childNodes)[cIndex+1:]...)
+				break
+			}
+		}
+		maxExectionTimes--
+	}
+}
+
+var IS_PERMISSION_INSERT_SUCCESS = false
+
+func permissionRecursive(list *[]models.Permission, target models.Permission) {
+	for index, item := range *list {
+		if item.ID == target.Pid {
+			(*list)[index].Children = append(item.Children, target)
+			IS_PERMISSION_INSERT_SUCCESS = true
+			return
+		} else if len(item.Children) > 0 {
+			permissionRecursive(&(*list)[index].Children, target)
 		}
 	}
-END:
-	return
 }
