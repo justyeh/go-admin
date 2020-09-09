@@ -56,11 +56,7 @@ const DictionaryForm = ({ onSuccess }, ref) => {
         <Form.Item name="label" label="字典标签" rules={[{ required: true }]}>
           <Input autoFocus />
         </Form.Item>
-        <Form.Item
-          name="value"
-          label="字典值"
-          rules={[{ required: true }, { pattern: /^[a-zA-Z0-9_]*$/, message: '仅允许字母、数字、下划线' }]}
-        >
+        <Form.Item name="value" label="字典值" rules={[{ required: true }]}>
           <Input />
         </Form.Item>
         <Form.Item name="sort" label="排序">
