@@ -19,7 +19,11 @@ export default [
     component: 'pages/profile/index',
     layout: 'management'
   },
-
+  {
+    path: '/system',
+    exact: true,
+    redirect: '/system/user'
+  },
   {
     path: '/system/user',
     exact: true,
@@ -67,6 +71,22 @@ export default [
     exact: true,
     title: '字典管理',
     component: 'pages/system/dictionary/index',
+    layout: 'management'
+  },
+
+  {
+    path: '/application',
+    exact: true,
+    title: '应用中心',
+    component: 'pages/application/home/index',
+    layout: 'management'
+  },
+
+  {
+    path: '/website',
+    exact: true,
+    title: '网站设置',
+    component: 'pages/website/index',
     layout: 'management'
   },
 

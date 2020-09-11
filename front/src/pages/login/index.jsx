@@ -13,7 +13,9 @@ export default () => {
   const history = useHistory()
 
   const [form, setForm] = useState({ uuid: '', captchaImage: '' })
+  const [submitLoading, setsubmitLoading] = useState(false)
   const [captchaLoading, setCaptchaLoading] = useState(false)
+
   const refreshCaptcha = useCallback(async () => {
     setCaptchaLoading(true)
     try {
@@ -28,12 +30,14 @@ export default () => {
   }, [])
 
   const handleSubmit = async (values) => {
+    setsubmitLoading(true)
     try {
       values.password = md5(values.password)
       const { token } = await login({ ...values, uuid: form.uuid })
       localStorage.setItem('token', token)
       history.replace(decodeURIComponent(getQueryVariable('redirect') || '/'))
     } catch (error) {}
+    setsubmitLoading(false)
   }
 
   return (
@@ -61,7 +65,7 @@ export default () => {
         </div>
 
         <Form.Item>
-          <Button block type="primary" htmlType="submit">
+          <Button block type="primary" htmlType="submit" loading={submitLoading}>
             Submit
           </Button>
         </Form.Item>

@@ -1,13 +1,15 @@
 import React from 'react'
+import { NavLink } from 'react-router-dom'
 
 export default function Header() {
   return (
     <div className="header">
-      <div>G CMS</div>
-      {/* <Menu mode="horizontal">
-        <Menu.Item key="content">内容管理</Menu.Item>
-        <Menu.Item key="app">应用中心</Menu.Item>
-      </Menu> */}
+      <div className="title">G CMS</div>
+      <div className="nav">
+        <NavLink to="/system">系统管理</NavLink>
+        <NavLink to="/application">应用中心</NavLink>
+        <NavLink to="/website">网站设置</NavLink>
+      </div>
     </div>
   )
 }

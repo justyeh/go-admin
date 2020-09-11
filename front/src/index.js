@@ -5,7 +5,7 @@ import * as serviceWorker from '@/serviceWorker'
 import { notification } from 'antd'
 
 import '@/assets/style/antd.scss';
-import '@/assets/style/global.scss'
+import '@/assets/style/common.scss'
 
 notification.config({
   duration: 2

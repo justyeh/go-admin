@@ -24,7 +24,10 @@ function LoadableComponent({ layout, component }) {
 }
 
 export default function Router() {
-  const onEnter = ({ path, component, layout, title }) => {
+  const onEnter = ({ path, redirect, component, layout, title }) => {
+    if (!!redirect) {
+      return <Redirect to={redirect} />
+    }
     // 设置title
     document.title = title ? 'G-CMS' : 'G-CMS ' + title
 
