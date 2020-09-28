@@ -1,8 +1,8 @@
-package models
+package apps
 
 import (
 	"backend/global"
-	"backend/tools"
+	"backend/util"
 	"errors"
 )
 
@@ -18,7 +18,7 @@ func (job *Job) TableName() string {
 	return "job"
 }
 
-func (job *Job) JobList(page tools.Pagination) ([]Job, int, error) {
+func (job *Job) JobList(page util.Pagination) ([]Job, int, error) {
 	var list = []Job{}
 	var total int
 	var err error

@@ -1,8 +1,8 @@
-package api
+package app
 
 import (
 	"backend/models"
-	"backend/tools"
+	"backend/util"
 	"strconv"
 	"time"
 
@@ -26,32 +26,32 @@ func (uc UserClaims) Valid() error {
 func Login(c *gin.Context) {
 	var loginUser models.LoginUser
 	if err := c.ShouldBind(&loginUser); err != nil {
-		tools.ResponseBindError(c, err)
+		util.ResponseBindError(c, err)
 		return
 	}
 
 	if err := loginUser.UserWithAccountAndPassword(); err != nil {
-		tools.ResponseError(c, err.Error())
+		util.ResponseError(c, err.Error())
 		return
 	}
 
 	if len(loginUser.ID) == 0 {
-		tools.ResponseError(c, "用户名或密码错误")
+		util.ResponseError(c, "用户名或密码错误")
 		return
 	}
 
 	user := models.User{ID: loginUser.ID}
 	if err := user.UserInfoWithID(); err != nil {
-		tools.ResponseError(c, err.Error())
+		util.ResponseError(c, err.Error())
 		return
 	}
 
 	token, err := createUserToken(UserClaims{user.ID, jwt.StandardClaims{ExpiresAt: time.Now().Add(time.Second * 10).Unix()}})
 	if err != nil {
-		tools.ResponseError(c, "生成token失败："+err.Error())
+		util.ResponseError(c, "生成token失败："+err.Error())
 		return
 	}
-	tools.ResponseSuccess(c, gin.H{
+	util.ResponseSuccess(c, gin.H{
 		"message":  "登录成功",
 		"token":    token,
 		"userInfo": user,
@@ -87,18 +87,18 @@ func Captcha(c *gin.Context) {
 	_, content, _ := driver.GenerateIdQuestionAnswer()
 	item, err := driver.DrawCaptcha(content)
 	if err != nil {
-		tools.ResponseError(c, "生成验证码错误："+err.Error())
+		util.ResponseError(c, "生成验证码错误："+err.Error())
 		return
 	}
 
 	// 生成验证码token
 	token, err := createCaptchaToken(content)
 	if err != nil {
-		tools.ResponseError(c, "生成验证码UUID错误："+err.Error())
+		util.ResponseError(c, "生成验证码UUID错误："+err.Error())
 		return
 	}
 
-	tools.ResponseSuccess(c, gin.H{
+	util.ResponseSuccess(c, gin.H{
 		"image":         item.EncodeB64string(),
 		"uuid":          token,
 		"captchaWidth":  captchaWidth,

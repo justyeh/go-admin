@@ -1,8 +1,8 @@
-package models
+package apps
 
 import (
 	"backend/global"
-	"backend/tools"
+	"backend/util"
 	"errors"
 )
 
@@ -32,7 +32,7 @@ func (dictionaryDetail *DictionaryDetail) TableName() string {
 	return "dictionary_detail"
 }
 
-func (dictionary *Dictionary) DictionaryList(page tools.Pagination) ([]Dictionary, int, error) {
+func (dictionary *Dictionary) DictionaryList(page util.Pagination) ([]Dictionary, int, error) {
 	var list = []Dictionary{}
 	var total int
 	var err error

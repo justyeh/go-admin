@@ -1,8 +1,8 @@
-package models
+package apps
 
 import (
 	"backend/global"
-	"backend/tools"
+	"backend/util"
 	"errors"
 	"fmt"
 )
@@ -61,7 +61,7 @@ func (u *User) UserInfoWithID() error {
 	return nil
 }
 
-func (user *ViewUser) UserList(page tools.Pagination) ([]ViewUser, int, error) {
+func (user *ViewUser) UserList(page util.Pagination) ([]ViewUser, int, error) {
 	list := []ViewUser{}
 	var total int
 	var err error
@@ -110,9 +110,9 @@ func (user *SystemUser) Create() error {
 	sql := "INSERT INTO user_role (id,user_id,role_id) VALUES "
 	for index, roleId := range user.RoleIds {
 		if index == len(user.RoleIds)-1 {
-			sql += fmt.Sprintf("('%s','%s','%s');", tools.UUID(), user.ID, roleId)
+			sql += fmt.Sprintf("('%s','%s','%s');", util.UUID(), user.ID, roleId)
 		} else {
-			sql += fmt.Sprintf("('%s','%s','%s'),", tools.UUID(), user.ID, roleId)
+			sql += fmt.Sprintf("('%s','%s','%s'),", util.UUID(), user.ID, roleId)
 		}
 	}
 	if err := tx.Exec(sql).Error; err != nil {
@@ -168,9 +168,9 @@ func (user *SystemUser) Update() error {
 	sql := "INSERT INTO user_role (id,user_id,role_id) VALUES "
 	for index, roleId := range user.RoleIds {
 		if index == len(user.RoleIds)-1 {
-			sql += fmt.Sprintf("('%s','%s','%s');", tools.UUID(), user.ID, roleId)
+			sql += fmt.Sprintf("('%s','%s','%s');", util.UUID(), user.ID, roleId)
 		} else {
-			sql += fmt.Sprintf("('%s','%s','%s'),", tools.UUID(), user.ID, roleId)
+			sql += fmt.Sprintf("('%s','%s','%s'),", util.UUID(), user.ID, roleId)
 		}
 	}
 	if err := tx.Exec(sql).Error; err != nil {

@@ -1,8 +1,8 @@
-package api
+package app
 
 import (
 	"backend/models"
-	"backend/tools"
+	"backend/util"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,62 +11,62 @@ func PermissionTree(c *gin.Context) {
 	permission := models.Permission{Name: c.Query("keyword")}
 	list, err := permission.PermissionTree()
 	if err != nil {
-		tools.ResponseError(c, err.Error())
+		util.ResponseError(c, err.Error())
 		return
 	}
-	tools.ResponseSuccess(c, gin.H{
+	util.ResponseSuccess(c, gin.H{
 		"list": permissionSliceToTree(list),
 	})
 }
 
 func AddPermission(c *gin.Context) {
-	now := tools.GetUnixNow()
+	now := util.GetUnixNow()
 	permission := models.Permission{CreateAt: now, UpdateAt: now}
 	if err := c.ShouldBind(&permission); err != nil {
-		tools.ResponseBindError(c, err)
+		util.ResponseBindError(c, err)
 		return
 	}
 
-	permission.ID = tools.UUID()
+	permission.ID = util.UUID()
 
 	if err := permission.Create(); err != nil {
-		tools.ResponseError(c, err.Error())
+		util.ResponseError(c, err.Error())
 		return
 	}
-	tools.ResponseSuccess(c, gin.H{"message": "添加成功", "data": permission})
+	util.ResponseSuccess(c, gin.H{"message": "添加成功", "data": permission})
 }
 
 func EditPermission(c *gin.Context) {
-	permission := models.Permission{UpdateAt: tools.GetUnixNow()}
+	permission := models.Permission{UpdateAt: util.GetUnixNow()}
 	if err := c.ShouldBind(&permission); err != nil {
-		tools.ResponseBindError(c, err)
+		util.ResponseBindError(c, err)
 		return
 	}
-	childIds := tools.GetChildIds("permission", permission.ID)
-	if tools.IsExistInStringSlice(childIds, permission.Pid) || permission.Pid == permission.ID {
-		tools.ResponseError(c, "参数不合法，pid不能为其本身或后代id")
+	childIds := util.GetChildIds("permission", permission.ID)
+	if util.IsExistInStringSlice(childIds, permission.Pid) || permission.Pid == permission.ID {
+		util.ResponseError(c, "参数不合法，pid不能为其本身或后代id")
 		return
 	}
 	if err := permission.Update(); err != nil {
-		tools.ResponseError(c, err.Error())
+		util.ResponseError(c, err.Error())
 		return
 	}
-	tools.ResponseSuccess(c, gin.H{"message": "修改成功"})
+	util.ResponseSuccess(c, gin.H{"message": "修改成功"})
 }
 
 func DeletePermission(c *gin.Context) {
 	permission := models.Permission{ID: c.Param("id")}
 
-	childIds := tools.GetChildIds("permission", permission.ID)
+	childIds := util.GetChildIds("permission", permission.ID)
 	ids := []string{permission.ID}
 	ids = append(ids, childIds...)
 
 	if err := permission.Delete(ids); err != nil {
-		tools.ResponseError(c, err.Error())
+		util.ResponseError(c, err.Error())
 		return
 	}
 
-	tools.ResponseSuccess(c, gin.H{"message": "删除成功"})
+	util.ResponseSuccess(c, gin.H{"message": "删除成功"})
 }
 
 func permissionSliceToTree(permissionList []models.Permission) []models.Permission {
@@ -80,7 +80,7 @@ func permissionSliceToTree(permissionList []models.Permission) []models.Permissi
 	rootNodes := []models.Permission{}
 	childNodes := []models.Permission{}
 	for _, item := range permissionList {
-		if !tools.IsExistInSlice(ids, item.Pid) {
+		if !util.IsExistInSlice(ids, item.Pid) {
 			rootNodes = append(rootNodes, item)
 		} else {
 			childNodes = append(childNodes, item)

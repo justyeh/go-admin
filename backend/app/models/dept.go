@@ -1,4 +1,4 @@
-package models
+package apps
 
 import (
 	"backend/global"

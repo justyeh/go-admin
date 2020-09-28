@@ -1,8 +1,8 @@
-package models
+package apps
 
 import (
 	"backend/global"
-	"backend/tools"
+	"backend/util"
 	"errors"
 	"fmt"
 )
@@ -36,7 +36,7 @@ func (role *Role) TableName() string {
 	return "role"
 }
 
-func (role *Role) RoleList(page tools.Pagination) ([]Role, int, error) {
+func (role *Role) RoleList(page util.Pagination) ([]Role, int, error) {
 	var list = []Role{}
 	var total int
 	var err error
@@ -132,9 +132,9 @@ func (roleMenu *RoleMenu) UpdateRoleMenu() error {
 	sql := "INSERT INTO role_menu (id,role_id,menu_id) VALUES "
 	for index, menuId := range roleMenu.MenuIds {
 		if index == len(roleMenu.MenuIds)-1 {
-			sql += fmt.Sprintf("('%s','%s','%s');", tools.UUID(), roleMenu.RoleId, menuId)
+			sql += fmt.Sprintf("('%s','%s','%s');", util.UUID(), roleMenu.RoleId, menuId)
 		} else {
-			sql += fmt.Sprintf("('%s','%s','%s'),", tools.UUID(), roleMenu.RoleId, menuId)
+			sql += fmt.Sprintf("('%s','%s','%s'),", util.UUID(), roleMenu.RoleId, menuId)
 		}
 	}
 	if err := tx.Exec(sql).Error; err != nil {
@@ -154,9 +154,9 @@ func (rolePermission *RolePermission) UpdateRolePermission() error {
 	sql := "INSERT INTO role_permission (id,role_id,permission_id) VALUES "
 	for index, menuId := range rolePermission.PermissionIds {
 		if index == len(rolePermission.PermissionIds)-1 {
-			sql += fmt.Sprintf("('%s','%s','%s');", tools.UUID(), rolePermission.RoleId, menuId)
+			sql += fmt.Sprintf("('%s','%s','%s');", util.UUID(), rolePermission.RoleId, menuId)
 		} else {
-			sql += fmt.Sprintf("('%s','%s','%s'),", tools.UUID(), rolePermission.RoleId, menuId)
+			sql += fmt.Sprintf("('%s','%s','%s'),", util.UUID(), rolePermission.RoleId, menuId)
 		}
 	}
 	if err := tx.Exec(sql).Error; err != nil {

@@ -1,8 +1,8 @@
-package api
+package app
 
 import (
 	"backend/models"
-	"backend/tools"
+	"backend/util"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,65 +11,65 @@ func MenuTree(c *gin.Context) {
 	menu := models.Menu{Name: c.Query("keyword")}
 	list, err := menu.MenuTree()
 	if err != nil {
-		tools.ResponseError(c, err.Error())
+		util.ResponseError(c, err.Error())
 		return
 	}
-	tools.ResponseSuccess(c, gin.H{
+	util.ResponseSuccess(c, gin.H{
 		"list": menuSliceToTree(list),
 	})
 }
 
 func AddMenu(c *gin.Context) {
-	now := tools.GetUnixNow()
+	now := util.GetUnixNow()
 	menu := models.Menu{CreateAt: now, UpdateAt: now}
 	if err := c.ShouldBind(&menu); err != nil {
-		tools.ResponseBindError(c, err)
+		util.ResponseBindError(c, err)
 		return
 	}
 
-	menu.ID = tools.UUID()
+	menu.ID = util.UUID()
 
 	if err := menu.Create(); err != nil {
-		tools.ResponseError(c, err.Error())
+		util.ResponseError(c, err.Error())
 		return
 	}
-	tools.ResponseSuccess(c, gin.H{"message": "添加成功", "data": menu})
+	util.ResponseSuccess(c, gin.H{"message": "添加成功", "data": menu})
 }
 
 func EditMenu(c *gin.Context) {
-	menu := models.Menu{UpdateAt: tools.GetUnixNow()}
+	menu := models.Menu{UpdateAt: util.GetUnixNow()}
 	if err := c.ShouldBind(&menu); err != nil {
-		tools.ResponseBindError(c, err)
+		util.ResponseBindError(c, err)
 		return
 	}
-	childIds := tools.GetChildIds("menu", menu.ID)
-	if tools.IsExistInStringSlice(childIds, menu.Pid) || menu.Pid == menu.ID {
-		tools.ResponseError(c, "参数不合法，pid不能为其本身或后代id")
+	childIds := util.GetChildIds("menu", menu.ID)
+	if util.IsExistInStringSlice(childIds, menu.Pid) || menu.Pid == menu.ID {
+		util.ResponseError(c, "参数不合法，pid不能为其本身或后代id")
 		return
 	}
 	if err := menu.Update(); err != nil {
-		tools.ResponseError(c, err.Error())
+		util.ResponseError(c, err.Error())
 		return
 	}
-	tools.ResponseSuccess(c, gin.H{"message": "修改成功"})
+	util.ResponseSuccess(c, gin.H{"message": "修改成功"})
 }
 
 func DeleteMenu(c *gin.Context) {
 	menu := models.Menu{ID: c.Param("id")}
 	if len(menu.ID) == 0 {
-		tools.ResponseError(c, "无效的菜单ID")
+		util.ResponseError(c, "无效的菜单ID")
 		return
 	}
 
-	childIds := tools.GetChildIds("menu", menu.ID)
+	childIds := util.GetChildIds("menu", menu.ID)
 	ids := []string{menu.ID}
 	ids = append(ids, childIds...)
 
 	if err := menu.Delete(ids); err != nil {
-		tools.ResponseError(c, err.Error())
+		util.ResponseError(c, err.Error())
 		return
 	}
-	tools.ResponseSuccess(c, gin.H{"message": "删除成功"})
+	util.ResponseSuccess(c, gin.H{"message": "删除成功"})
 }
 
 func menuSliceToTree(menuList []models.Menu) []models.Menu {
@@ -83,7 +83,7 @@ func menuSliceToTree(menuList []models.Menu) []models.Menu {
 	rootNodes := []models.Menu{}
 	childNodes := []models.Menu{}
 	for _, item := range menuList {
-		if !tools.IsExistInSlice(ids, item.Pid) {
+		if !util.IsExistInSlice(ids, item.Pid) {
 			rootNodes = append(rootNodes, item)
 		} else {
 			childNodes = append(childNodes, item)

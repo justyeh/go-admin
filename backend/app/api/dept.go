@@ -1,8 +1,8 @@
-package api
+package app
 
 import (
 	"backend/models"
-	"backend/tools"
+	"backend/util"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,66 +11,66 @@ func DeptTree(c *gin.Context) {
 	dept := models.Dept{Name: c.Query("keyword")}
 	list, err := dept.DeptTree()
 	if err != nil {
-		tools.ResponseError(c, err.Error())
+		util.ResponseError(c, err.Error())
 		return
 	}
-	tools.ResponseSuccess(c, gin.H{
+	util.ResponseSuccess(c, gin.H{
 		"list": deptSliceToTree(list),
 	})
 }
 
 func AddDept(c *gin.Context) {
-	now := tools.GetUnixNow()
+	now := util.GetUnixNow()
 	dept := models.Dept{CreateAt: now, UpdateAt: now}
 	if err := c.ShouldBind(&dept); err != nil {
-		tools.ResponseBindError(c, err)
+		util.ResponseBindError(c, err)
 		return
 	}
 
-	dept.ID = tools.UUID()
+	dept.ID = util.UUID()
 
 	if err := dept.Create(); err != nil {
-		tools.ResponseError(c, err.Error())
+		util.ResponseError(c, err.Error())
 		return
 	}
-	tools.ResponseSuccess(c, gin.H{"message": "添加成功", "data": dept})
+	util.ResponseSuccess(c, gin.H{"message": "添加成功", "data": dept})
 }
 
 func EditDept(c *gin.Context) {
-	dept := models.Dept{UpdateAt: tools.GetUnixNow()}
+	dept := models.Dept{UpdateAt: util.GetUnixNow()}
 	if err := c.ShouldBind(&dept); err != nil {
-		tools.ResponseBindError(c, err)
+		util.ResponseBindError(c, err)
 		return
 	}
-	childIds := tools.GetChildIds("dept", dept.ID)
-	if tools.IsExistInStringSlice(childIds, dept.Pid) || dept.Pid == dept.ID {
-		tools.ResponseError(c, "参数不合法，pid不能为其本身或后代id")
+	childIds := util.GetChildIds("dept", dept.ID)
+	if util.IsExistInStringSlice(childIds, dept.Pid) || dept.Pid == dept.ID {
+		util.ResponseError(c, "参数不合法，pid不能为其本身或后代id")
 		return
 	}
 	if err := dept.Update(); err != nil {
-		tools.ResponseError(c, err.Error())
+		util.ResponseError(c, err.Error())
 		return
 	}
-	tools.ResponseSuccess(c, gin.H{"message": "修改成功"})
+	util.ResponseSuccess(c, gin.H{"message": "修改成功"})
 }
 
 func DeleteDept(c *gin.Context) {
 	dept := models.Dept{ID: c.Param("id")}
 	if len(dept.ID) == 0 {
-		tools.ResponseError(c, "无效的部门ID")
+		util.ResponseError(c, "无效的部门ID")
 		return
 	}
 
-	childIds := tools.GetChildIds("dept", dept.ID)
+	childIds := util.GetChildIds("dept", dept.ID)
 	ids := []string{dept.ID}
 	ids = append(ids, childIds...)
 
 	if err := dept.Delete(ids); err != nil {
-		tools.ResponseError(c, err.Error())
+		util.ResponseError(c, err.Error())
 		return
 	}
 
-	tools.ResponseSuccess(c, gin.H{"message": "删除成功"})
+	util.ResponseSuccess(c, gin.H{"message": "删除成功"})
 }
 
 func deptSliceToTree(deptList []models.Dept) []models.Dept {
@@ -84,7 +84,7 @@ func deptSliceToTree(deptList []models.Dept) []models.Dept {
 	rootNodes := []models.Dept{}
 	childNodes := []models.Dept{}
 	for _, item := range deptList {
-		if !tools.IsExistInSlice(ids, item.Pid) {
+		if !util.IsExistInSlice(ids, item.Pid) {
 			rootNodes = append(rootNodes, item)
 		} else {
 			childNodes = append(childNodes, item)
