@@ -1,7 +1,7 @@
 {
   "mysql": {
     "Username": "root",
-    "Password": "root",
+    "Password": "",
     "Path": "127.0.0.1:3306",
     "Dbname": "test",
     "MaxIdleConns": 10,

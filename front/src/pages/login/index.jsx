@@ -1,9 +1,9 @@
 import React, { useState, useCallback } from 'react'
-import { useEffectOnce } from 'react-use'
+import { useMount } from 'react-use'
+import { useHistory } from 'react-router-dom'
 import { Button, Input, Form, Tooltip, Spin } from 'antd'
 import { UserOutlined, LockOutlined } from '@ant-design/icons'
 import md5 from 'blueimp-md5'
-import { useHistory } from 'react-router-dom'
 import { getQueryVariable } from '@/utils/index'
 import './style.scss'
 
@@ -25,9 +25,9 @@ export default () => {
     setCaptchaLoading(false)
   }, [])
 
-  useEffectOnce(() => {
+  useMount(() => {
     refreshCaptcha()
-  }, [])
+  })
 
   const handleSubmit = async (values) => {
     setsubmitLoading(true)
@@ -35,7 +35,7 @@ export default () => {
       values.password = md5(values.password)
       const { token } = await login({ ...values, uuid: form.uuid })
       localStorage.setItem('token', token)
-      history.replace(decodeURIComponent(getQueryVariable('redirect') || '/'))
+      history.replace(getQueryVariable('redirect') || '/')
     } catch (error) {}
     setsubmitLoading(false)
   }
@@ -45,16 +45,16 @@ export default () => {
       <Form size="large" name="login" onFinish={handleSubmit}>
         <h1>G-CMS</h1>
 
-        <Form.Item name="account" rules={[{ required: true }]}>
+        <Form.Item name="account" rules={[{ required: true, message: '请输入登陆账户' }]}>
           <Input placeholder="登录账户" prefix={<UserOutlined />} />
         </Form.Item>
 
-        <Form.Item name="password" rules={[{ required: true }]}>
+        <Form.Item name="password" rules={[{ required: true, message: '请输入登陆密码' }]}>
           <Input.Password placeholder="登录密码" prefix={<LockOutlined />} />
         </Form.Item>
 
         <div className="captcha-item">
-          <Form.Item name="captcha" rules={[{ required: true }]}>
+          <Form.Item name="captcha" rules={[{ required: true, message: '请输入验证码' }]}>
             <Input placeholder="验证码" />
           </Form.Item>
           <Tooltip placement="top" title="刷新验证码">
@@ -64,9 +64,9 @@ export default () => {
           </Tooltip>
         </div>
 
-        <Form.Item>
+        <Form.Item style={{ paddingTop: 10 }}>
           <Button block type="primary" htmlType="submit" loading={submitLoading}>
-            Submit
+            登陆
           </Button>
         </Form.Item>
       </Form>
